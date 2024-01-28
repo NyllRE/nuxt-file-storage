@@ -1,0 +1,18 @@
+{
+	"useTabs": true,
+	"tabWidth": 3,
+	"semi": false,
+	"singleQuote": true,
+	"trailingComma": "all",
+	"printWidth": 100,
+	"overrides": [
+		{
+			"files": "*.vue",
+			"options": {
+				"singleQuote": true,
+				"maxAttributesPerLine": 2,
+				"singleTagSingleLine": false
+			}
+		}
+	]
+}
