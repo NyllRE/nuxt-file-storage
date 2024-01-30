@@ -1,6 +1,6 @@
-![Nuxt Storage Banner](./playground/public/Nuxt-Storage-Banner.svg)
+![Nuxt Storage Banner](./playground/public/nuxt-nitro-storage-banner.svg)
 
-# Nuxt Storage
+# Nuxt Nitro Storage
 
 <!-- [![npm version][npm-version-src]][npm-version-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
@@ -10,7 +10,7 @@
 Easy solution to store files in your nuxt apps. Be able to upload files from the frontend and recieve them from the backend to then save the files in your project.
 
 -  [✨ &nbsp;Release Notes](/CHANGELOG.md)
--  [🏀 Online playground](https://stackblitz.com/github/NyllRE/nuxt-backend-storage?file=playground%2Fapp.vue)
+-  [🏀 Online playground](https://stackblitz.com/github/NyllRE/nuxt-nitro-storage?file=playground%2Fapp.vue)
 <!-- - [📖 &nbsp;Documentation](https://example.com) -->
 
 ## Features
@@ -22,24 +22,24 @@ Easy solution to store files in your nuxt apps. Be able to upload files from the
 
 ## Quick Setup
 
-1. Add `nuxt-backend-storage` dependency to your project
+1. Add `nuxt-nitro-storage` dependency to your project
 
 ```bash
 # Using pnpm
-pnpm add -D nuxt-backend-storage
+pnpm add -D nuxt-nitro-storage
 
 # Using yarn
-yarn add --dev nuxt-backend-storage
+yarn add --dev nuxt-nitro-storage
 
 # Using npm
-npm install --save-dev nuxt-backend-storage
+npm install --save-dev nuxt-nitro-storage
 ```
 
-2. Add `nuxt-backend-storage` to the `modules` section of `nuxt.config.ts`
+2. Add `nuxt-nitro-storage` to the `modules` section of `nuxt.config.ts`
 
 ```js
 export default defineNuxtConfig({
-	modules: ['nuxt-backend-storage'],
+	modules: ['nuxt-nitro-storage'],
 })
 ```
 
@@ -47,11 +47,11 @@ That's it! You can now use Nuxt Storage in your Nuxt app ✨
 
 ## Configuration
 
-You can currently configure a single setting of the `nuxt-backend-storage` module. Here is the config interface:
+You can currently configure a single setting of the `nuxt-nitro-storage` module. Here is the config interface:
 
 ```js
 export default defineNuxtConfig({
-	modules: ['nuxt-backend-storage'],
+	modules: ['nuxt-nitro-storage'],
 	storage: {
 		// location starts from the root
 		location: 'public/files',
@@ -123,11 +123,11 @@ And that's it! Now you can store any file in your nuxt project from the user ✨
 
 <!-- Badges -->
 
-[npm-version-src]: https://img.shields.io/npm/v/nuxt-backend-storage/latest.svg?style=flat&colorA=18181B&colorB=28CF8D
-[npm-version-href]: https://npmjs.com/package/nuxt-backend-storage
-[npm-downloads-src]: https://img.shields.io/npm/dm/nuxt-backend-storage.svg?style=flat&colorA=18181B&colorB=28CF8D
-[npm-downloads-href]: https://npmjs.com/package/nuxt-backend-storage
-[license-src]: https://img.shields.io/npm/l/nuxt-backend-storage.svg?style=flat&colorA=18181B&colorB=28CF8D
-[license-href]: https://npmjs.com/package/nuxt-backend-storage
+[npm-version-src]: https://img.shields.io/npm/v/nuxt-nitro-storage/latest.svg?style=flat&colorA=18181B&colorB=28CF8D
+[npm-version-href]: https://npmjs.com/package/nuxt-nitro-storage
+[npm-downloads-src]: https://img.shields.io/npm/dm/nuxt-nitro-storage.svg?style=flat&colorA=18181B&colorB=28CF8D
+[npm-downloads-href]: https://npmjs.com/package/nuxt-nitro-storage
+[license-src]: https://img.shields.io/npm/l/nuxt-nitro-storage.svg?style=flat&colorA=18181B&colorB=28CF8D
+[license-href]: https://npmjs.com/package/nuxt-nitro-storage
 [nuxt-src]: https://img.shields.io/badge/Nuxt-18181B?logo=nuxt.js
 [nuxt-href]: https://nuxt.com

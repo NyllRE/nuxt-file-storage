@@ -1,8 +1,8 @@
 {
-	"name": "nuxt-backend-storage",
+	"name": "nuxt-nitro-storage",
 	"version": "1.0.0",
 	"description": "My new Nuxt module",
-	"repository": "NyllRE/nuxt-backend-storage",
+	"repository": "NyllRE/nuxt-nitro-storage",
 	"license": "MIT",
 	"type": "module",
 	"exports": {

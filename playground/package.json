@@ -1,6 +1,6 @@
 {
 	"private": true,
-	"name": "nuxt-backend-storage-playground",
+	"name": "nuxt-nitro-storage-playground",
 	"type": "module",
 	"scripts": {
 		"dev": "nuxi dev",
