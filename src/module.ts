@@ -7,7 +7,7 @@ export interface ModuleOptions {
 
 export default defineNuxtModule<ModuleOptions>({
 	meta: {
-		name: 'nuxt-storage',
+		name: 'nuxt-backend-storage',
 		configKey: 'storage',
 	},
 	// Default configuration options of the Nuxt module

@@ -1,9 +1,13 @@
 import mimeTypes from 'mime-types'
-import { writeFileSync } from 'fs'
+import { writeFileSync, rm } from 'fs'
 /**
  * @returns mime type
  */
-export const storeFileLocally = (dataurl: string, filename: string): string => {
+export const storeFileLocally = (
+	dataurl: string,
+	filename: string,
+	filelocation: string = '',
+): string => {
 	const arr: string[] = dataurl.split(',')
 	const mimeMatch = arr[0].match(/:(.*?);/)
 	if (!mimeMatch) {
@@ -16,17 +20,13 @@ export const storeFileLocally = (dataurl: string, filename: string): string => {
 	const ext = mimeTypes.extension(mime)
 	const location = useRuntimeConfig().public.nuxtStorage.location
 
-	writeFileSync(`${location}/${filename}.${ext}`, binaryString)
+	writeFileSync(`${location}/${filelocation}/${filename}.${ext}`, binaryString)
 	return `${filename}.${ext}`
 }
 
-export const deleteFile = async (userId: string, filename: string) => {
+export const deleteFile = async (userId: string, filename: string, filelocation: string = '/') => {
 	try {
-		const oldFiles = await getFiles(userId),
-			newFiles = oldFiles.filter((file) => file !== filename)
-		await storeFiles(userId, newFiles)
-
-		fs.rm(`public/userFiles/${filename}`, () => {
+		rm(`${location}${filelocation}/${filename}`, () => {
 			console.error(`${filename} does not exist`)
 		})
 	} catch {

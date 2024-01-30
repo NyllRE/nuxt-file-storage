@@ -1,7 +1,7 @@
 <template>
 	<div class="main">
 		<header>
-		<img src="/nuxt-storage-logo.svg" alt="" class="logo">
+		<img src="/nuxt-backend-storage-logo.svg" alt="" class="logo">
 		<h1 class="text">
 			<span class="nuxt">
 				Nuxt
