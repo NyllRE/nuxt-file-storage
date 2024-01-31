@@ -102,7 +102,7 @@ const submit = async () => {
 using Nitro Server Engine, we will make an api route that recieves the files and stores them in the folder `userFiles`
 ```ts
 export default defineEventHandler(async (event) => {
-	const { file } = await readBody<{ files: File[] }>(event)
+	const { file } = await readBody<{ file: File }>(event)
 
 	storeFileLocally(
 		file.content, // the stringified version of the file

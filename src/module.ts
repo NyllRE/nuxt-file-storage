@@ -1,4 +1,5 @@
 import { defineNuxtModule, createResolver, addImportsDir } from "@nuxt/kit";
+import defu from 'defu'
 
 // Module options TypeScript interface definition
 export interface ModuleOptions {
@@ -15,8 +16,12 @@ export default defineNuxtModule<ModuleOptions>({
 		location: 'public/userFiles',
 	},
 	setup(options, nuxt) {
-		nuxt.options.runtimeConfig.public.nuxtStorage = options
-		// @ts-expect-error
+		nuxt.options.runtimeConfig.public.nuxtStorage = defu(
+			nuxt.options.runtimeConfig.public.nuxtStorage,
+			{
+				...options,
+			},
+		)
 		const resolver = createResolver(import.meta.url)
 
 		addImportsDir(resolver.resolve('runtime/composables'))

@@ -18,18 +18,15 @@ export const storeFileLocally = (
 	const binaryString: Buffer = Buffer.from(base64String, 'base64')
 
 	const ext = mimeTypes.extension(mime)
+
 	const location = useRuntimeConfig().public.nuxtStorage.location
 
 	writeFileSync(`${location}/${filelocation}/${filename}.${ext}`, binaryString)
 	return `${filename}.${ext}`
 }
 
-export const deleteFile = async (userId: string, filename: string, filelocation: string = '/') => {
-	try {
-		rm(`${location}${filelocation}/${filename}`, () => {
-			console.error(`${filename} does not exist`)
-		})
-	} catch {
-		0
-	}
+export const deleteFile = async (filename: string, filelocation: string = '') => {
+	rm(`${location}${filelocation}/${filename}`, () => {
+		console.error(`${filename} does not exist`)
+	})
 }

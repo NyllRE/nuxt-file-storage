@@ -1,23 +1,28 @@
 <template>
 	<div class="main">
 		<header>
-		<img src="/nuxt-storage-logo.svg" alt="" class="logo">
-		<h1 class="text">
-			<span class="nuxt">
-				Nuxt
-			</span>
-			Storage
-		</h1>
+			<img src="/nuxt-storage-logo.svg" alt="" class="logo" />
+			<h1 class="text">
+				<span class="nuxt"> Nuxt </span>
+				Storage
+			</h1>
 		</header>
 
 		<div class="links">
-			<a v-for="link in fileLinks" :href="`/userFiles/${link}`">{{ link }}</a>
+			<a v-for="link in fileLinks" :key="link" :href="`/userFiles/${link}`">{{ link }}</a>
 		</div>
-		<input id="file-input" type="file" name="files[]" multiple @input="handleFileInput" @click="approveUpload == ''" />
+		<input
+			id="file-input"
+			type="file"
+			name="files[]"
+			multiple
+			@input="handleFileInput"
+			@click="approveUpload == ''"
+		/>
 		<button @click="submit">submit</button>
 		<p>{{ approveUpload }}</p>
 		<div class="images">
-			<img v-for="file in files" :src="file.content" :key="file.name" alt="file.name" />
+			<img v-for="file in files" :key="file.name" :src="file.content" alt="file.name" />
 		</div>
 	</div>
 </template>
@@ -32,8 +37,8 @@ const submit = async () => {
 	const response = await $fetch('/api/files', {
 		method: 'POST',
 		body: {
-			files: files.value
-	  }
+			files: files.value,
+		},
 	})
 	if (!response) return
 	approveUpload.value = 'Uploaded files successfully!'
@@ -50,7 +55,7 @@ pre {
 
 img.logo {
 	width: 5em;
-	animation: animate-in .5s alternate infinite;
+	animation: animate-in 0.5s alternate infinite;
 }
 
 .images {
@@ -74,9 +79,9 @@ img.logo {
 }
 
 .links a {
-   padding: 0.5em 1em;
+	padding: 0.5em 1em;
 	background: lightgreen;
-	border-radius: .3em;
+	border-radius: 0.3em;
 	text-decoration: none;
 	color: black;
 }
@@ -102,7 +107,7 @@ header {
 }
 
 .nuxt {
-	background: linear-gradient(135deg, rgb(70, 255, 178), #00DC82, rgb(37, 153, 8));
+	background: linear-gradient(135deg, rgb(70, 255, 178), #00dc82, rgb(37, 153, 8));
 	background-clip: text;
 	-webkit-text-fill-color: transparent;
 }

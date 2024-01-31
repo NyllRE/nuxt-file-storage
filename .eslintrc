@@ -1,4 +1,12 @@
 {
 	"root": true,
-	"extends": ["@nuxt/eslint-config"]
+	"extends": ["@nuxt/eslint-config"],
+	"rules": {
+		"vue/multi-word-component-names": 0,
+		"vue/html-indent": 0,
+		"vue/html-self-closing": 0,
+		"vue/max-attributes-per-line": 0,
+		"vue/singleline-html-element-content-newline": 0,
+		"@typescript-eslint/no-unused-vars": 0
+	}
 }
