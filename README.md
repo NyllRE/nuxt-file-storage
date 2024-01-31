@@ -7,6 +7,8 @@
 [![License][license-src]][license-href]
 [![Nuxt][nuxt-src]][nuxt-href]
 
+> ⚠️ WARNING : This project is still experimental and under testing. When I make all of the testing necessary I will be removing this warning. If you encounter any issues please open a [new issue](https://github.com/NyllRE/nuxt-nitro-storage/issues/new).
+
 Easy solution to store files in your nuxt apps. Be able to upload files from the frontend and recieve them from the backend to then save the files in your project.
 
 -  [✨ &nbsp;Release Notes](/CHANGELOG.md)
