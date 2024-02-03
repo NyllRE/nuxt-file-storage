@@ -1,5 +1,6 @@
 import mimeTypes from 'mime-types'
 import { writeFileSync, rm } from 'fs'
+import { fileURLToPath } from 'node:url'
 /**
  * @returns mime type
  */
@@ -19,9 +20,14 @@ export const storeFileLocally = (
 
 	const ext = mimeTypes.extension(mime)
 
-	const location = useRuntimeConfig().public.nuxtStorage.location
+	const location = useRuntimeConfig().public.nitroStorage.location
 
-	writeFileSync(`${location}/${filelocation}/${filename}.${ext}`, binaryString)
+	// const storagePath = fileURLToPath(new URL(`./${location}`))
+	console.log(import.meta.url)
+
+	writeFileSync(`~/${location}${filelocation}/${filename}.${ext}`, binaryString, {
+		flag: 'w',
+	})
 	return `${filename}.${ext}`
 }
 

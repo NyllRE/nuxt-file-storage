@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-const { handleFileInput, files } = useStorage()
+const { handleFileInput, files } = useNitroStorage()
 
 const fileLinks = ref<string[]>(['e3'])
 const approveUpload = ref('')

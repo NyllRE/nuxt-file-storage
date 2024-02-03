@@ -1,7 +1,7 @@
 import { defineNuxtModule, createResolver, addImportsDir } from "@nuxt/kit";
 import defu from 'defu'
 
-// Module options TypeScript interface definition
+//? Module options TypeScript interface definition
 export interface ModuleOptions {
 	location: string
 }
@@ -9,15 +9,15 @@ export interface ModuleOptions {
 export default defineNuxtModule<ModuleOptions>({
 	meta: {
 		name: 'nuxt-nitro-storage',
-		configKey: 'storage',
+		configKey: 'nitroStorage',
 	},
-	// Default configuration options of the Nuxt module
+	//? Default configuration options of the Nuxt module
 	defaults: {
 		location: 'public/userFiles',
 	},
 	setup(options, nuxt) {
-		nuxt.options.runtimeConfig.public.nuxtStorage = defu(
-			nuxt.options.runtimeConfig.public.nuxtStorage,
+		nuxt.options.runtimeConfig.public.nitroStorage = defu(
+			nuxt.options.runtimeConfig.public.nitroStorage,
 			{
 				...options,
 			},
