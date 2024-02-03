@@ -73,7 +73,7 @@ You can use Nuxt Storage to get the files from the `<input>` tag:
 
 <script setup>
 	// handleFileInput can handle multiple files
-	const { handleFileInput, files } = useStorage()
+	const { handleFileInput, files } = useNitroStorage()
 </script>
 ```
 > the `files` return a ref object that contains the files
@@ -86,7 +86,7 @@ here's an example of using files to send them to the backend:
 </template>
 
 <script setup>
-const { handleFileInput, files } = useStorage()
+const { handleFileInput, files } = useNitroStorage()
 
 const submit = async () => {
 	const response = await $fetch('/api/files', {
