@@ -1,5 +1,5 @@
 import mimeTypes from 'mime-types'
-import { writeFileSync, rm } from 'fs'
+import { writeFile, rm } from 'fs'
 import { fileURLToPath } from 'node:url'
 /**
  * @returns mime type
@@ -25,9 +25,10 @@ export const storeFileLocally = (
 	// const storagePath = fileURLToPath(new URL(`./${location}`))
 	console.log(import.meta.url)
 
-	writeFileSync(`~/${location}${filelocation}/${filename}.${ext}`, binaryString, {
-		flag: 'w',
+	writeFile(`~/${location}${filelocation}/${filename}.${ext}`, binaryString, (err) => {
+		if (err) throw err
 	})
+
 	return `${filename}.${ext}`
 }
 
