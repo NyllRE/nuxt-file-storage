@@ -106,7 +106,7 @@ using Nitro Server Engine, we will make an api route that recieves the files and
 export default defineEventHandler(async (event) => {
 	const { file } = await readBody<{ file: File }>(event)
 
-	storeFileLocally(
+	await storeFileLocally(
 		file.content, // the stringified version of the file
 		file.name,    // the name of the file
 		'/userFiles'  // the folder the file will be stored in

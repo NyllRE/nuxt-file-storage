@@ -1,15 +1,17 @@
 import mimeTypes from 'mime-types'
-import { writeFile, rm } from 'fs'
+import { writeFile, rm } from 'fs/promises'
 import { fileURLToPath } from 'node:url'
 /**
- * @returns mime type
+ * @param {string} dataurl - The data URL containing the file data.
+ * @param {string} filename - The desired filename.
+ * @param {string} filelocation - Optional file location. Defaults to ''.
+ * @returns {Promise<string>} A promise resolving to the stored filename with extension.
  */
-export const storeFileLocally = (
+export const storeFileLocally = async (
 	dataurl: string,
 	filename: string,
 	filelocation: string = '',
-	callback?: (err: NodeJS.ErrnoException) => void,
-): string => {
+): Promise<string> => {
 	const arr: string[] = dataurl.split(',')
 	const mimeMatch = arr[0].match(/:(.*?);/)
 	if (!mimeMatch) {
@@ -26,15 +28,11 @@ export const storeFileLocally = (
 	// const storagePath = fileURLToPath(new URL(`./${location}`))
 	console.log(import.meta.url)
 
-	writeFile(`~/${location}${filelocation}/${filename}.${ext}`, binaryString, (err) => {
-		callback(err)
-	})
+	await writeFile(`~/${location}${filelocation}/${filename}.${ext}`, binaryString)
 
 	return `${filename}.${ext}`
 }
 
 export const deleteFile = async (filename: string, filelocation: string = '') => {
-	rm(`${location}${filelocation}/${filename}`, () => {
-		console.error(`${filename} does not exist`)
-	})
+	await rm(`${location}${filelocation}/${filename}`)
 }
