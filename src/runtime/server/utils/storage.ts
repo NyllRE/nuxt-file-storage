@@ -8,6 +8,7 @@ export const storeFileLocally = (
 	dataurl: string,
 	filename: string,
 	filelocation: string = '',
+	callback?: (err: NodeJS.ErrnoException) => void,
 ): string => {
 	const arr: string[] = dataurl.split(',')
 	const mimeMatch = arr[0].match(/:(.*?);/)
@@ -26,7 +27,7 @@ export const storeFileLocally = (
 	console.log(import.meta.url)
 
 	writeFile(`~/${location}${filelocation}/${filename}.${ext}`, binaryString, (err) => {
-		if (err) throw err
+		callback(err)
 	})
 
 	return `${filename}.${ext}`
