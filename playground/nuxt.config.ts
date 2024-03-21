@@ -1,7 +1,7 @@
 export default defineNuxtConfig({
 	modules: ['../src/module'],
-	storage: {
-		location: 'playground/public/userFiles',
+	nitroStorage: {
+		mount: process.env.mount,
 	},
 	devtools: { enabled: true },
 })
