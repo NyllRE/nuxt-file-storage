@@ -3,7 +3,7 @@ import defu from 'defu'
 
 //? Module options TypeScript interface definition
 export interface ModuleOptions {
-	location: string
+	mount: string
 }
 
 export default defineNuxtModule<ModuleOptions>({
@@ -12,9 +12,8 @@ export default defineNuxtModule<ModuleOptions>({
 		configKey: 'nitroStorage',
 	},
 	//? Default configuration options of the Nuxt module
-	defaults: {
-		location: 'public/userFiles',
-	},
+	// defaults: {
+	// },
 	setup(options, nuxt) {
 		nuxt.options.runtimeConfig.public.nitroStorage = defu(
 			nuxt.options.runtimeConfig.public.nitroStorage,

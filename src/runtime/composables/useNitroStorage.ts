@@ -1,34 +1,34 @@
 import { ref } from "vue";
 
 export default function () {
-  const files = ref<File[]>([]);
-  const serializeFile = (file) => {
-    const reader = new FileReader();
-    reader.onload = (e: any) => {
-      files.value.push({
-        name: file.name,
-        content: e.target.result,
-      });
-      console.log(files);
-    };
-    reader.readAsDataURL(file);
-  };
+	const files = ref<File[]>([])
+	const serializeFile = (file: File) => {
+		const reader = new FileReader()
+		reader.onload = (e: any) => {
+			files.value.push({
+				...file,
+				content: e.target.result,
+			})
+		}
+		reader.readAsDataURL(file)
+	}
 
-  const handleFileInput = (event: any) => {
-    files.value.splice(0);
-    for (const file of event.target.files) {
-      serializeFile(file);
-    }
-    console.log(event.target.files);
-  };
+	const handleFileInput = (event: any) => {
+		files.value.splice(0)
+		console.log('handleFileInput event: ' + event)
 
-  return {
-    files,
-    handleFileInput,
-  };
+		for (const file of event.target.files) {
+			serializeFile(file)
+		}
+	}
+
+	return {
+		files,
+		handleFileInput,
+	}
 }
 
-interface File {
-  content: any;
-  name: string;
+interface File extends Blob {
+	content: any
+	name: string
 }

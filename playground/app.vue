@@ -8,29 +8,59 @@
 			</h1>
 		</header>
 
-		<div class="links">
-			<a v-for="link in fileLinks" :key="link" :href="`/userFiles/${link}`">{{ link }}</a>
-		</div>
-		<input
-			id="file-input"
-			type="file"
-			name="files[]"
-			multiple
-			@input="handleFileInput"
-			@click="approveUpload == ''"
-		/>
-		<button @click="submit">submit</button>
-		<p>{{ approveUpload }}</p>
-		<div class="images">
-			<img v-for="file in files" :key="file.name" :src="file.content" alt="file.name" />
-		</div>
+		<div class="container">
+			<div class="input-container">
+				<div class="links">
+					<a v-for="link in fileLinks" :key="link" :href="`/userFiles/specificFolder/${link}`">{{ link }}</a>
+				</div>
+				<label
+					id="dropcontainer"
+					for="images"
+					class="drop-container"
+					@dragover.prevent
+					@dragenter.prevent="(e: any) => {e.target.classList.add('drag-active')}"
+					@dragleave.prevent="(e: any) => {e.target.classList.remove('drag-active')}"
+					@drop.prevent="handleDrop"
+				>
+					<span class="drop-title">Drop files here</span>
+					or
+					<!-- <input type="file" id="images" accept="image/*" required> -->
+					<input
+						id="file-input"
+						:ref="fileInput"
+						type="file"
+						name="files[]"
+						multiple
+						@input="handleFileInput"
+						@click="approveUpload == ''"
+					/>
+				</label>
+				<button @click="submit">submit</button>
+				<p>{{ approveUpload }}</p>
+			</div>
+			<div class="images">
+				<img v-for="file in files" :key="file.name" :src="file.content" alt="file.name" />
+			</div>
+	</div>
 	</div>
 </template>
 
 <script setup lang="ts">
 const { handleFileInput, files } = useNitroStorage()
 
-const fileLinks = ref<string[]>(['e3'])
+const fileInput = ref<HTMLInputElement>()
+
+const handleDrop = (e: any) => {
+	alert("drag and drop functionality does not work currently, you can try to fix it in the repo :)")
+	// e.preventDefault()
+	// e.target.classList.remove("drag-active")
+	// if (fileInput.value) return
+	// files.value = e.dataTransfer.files
+	// console.log(e.dataTransfer.files, files.value);
+	// alert(fileInput.value.dispatchEvent(new Event("change event for file", {})))
+  }
+
+const fileLinks = ref<string[]>([])
 const approveUpload = ref('')
 
 const submit = async () => {
@@ -47,6 +77,7 @@ const submit = async () => {
 </script>
 
 <style>
+
 pre {
 	width: 80%;
 	overflow: hidden;
@@ -58,14 +89,45 @@ img.logo {
 	animation: animate-in 0.5s alternate infinite;
 }
 
+.container {
+	display: flex;
+	height: 30em;
+}
+
+.input-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1em;
+}
+
 .images {
-	margin-top: 2em;
+	/* margin-top: 2em; */
 	padding: 1em;
 	display: flex;
+	flex-direction: column;
+	align-items: center;
 	gap: 2em;
 	width: 80%;
-	height: min-content;
-	overflow-x: auto;
+	min-height: 100%;
+	overflow-y: auto;
+	scrollbar-width: thin;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+	background-color: #87ff5b;
+}
+
+/* Thumb */
+::-webkit-scrollbar-thumb {
+	background-color: #64ffc3;
+	border-radius: 10px;
+}
+
+/* Thumb hover */
+::-webkit-scrollbar-thumb:hover {
+	background-color: #ccc;
 }
 
 .images img {
@@ -76,6 +138,7 @@ img.logo {
 .links {
 	display: grid;
 	margin-block: 1em;
+	gap: 1em;
 }
 
 .links a {
@@ -92,6 +155,64 @@ header {
 	gap: 2em;
 }
 
+.drop-container {
+  position: relative;
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  padding: 20px;
+  border-radius: 10px;
+  border: 2px dashed #555;
+  color: #444;
+  cursor: pointer;
+  transition: background .2s ease-in-out, border .2s ease-in-out;
+}
+
+.drop-container:hover {
+  background: #eee;
+  border-color: #111;
+}
+
+.drop-container:hover .drop-title {
+  color: #222;
+}
+
+.drop-title {
+  color: #444;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  transition: color .2s ease-in-out;
+}
+
+input[type=file]::file-selector-button, button {
+  margin-right: 20px;
+  border: none;
+  background: lightgreen;
+  padding: 10px 20px;
+  border-radius: 10px;
+  color: black;
+  cursor: pointer;
+  transition: background .2s ease-in-out;
+}
+
+input[type=file]::file-selector-button:hover, button:hover {
+  background: rgb(75, 197, 75);
+}
+
+.drop-container.drag-active {
+  background: #eee;
+  border-color: #111;
+}
+
+.drop-container.drag-active .drop-title {
+  color: #222;
+}
+
+
 .main {
 	font-family: 'Courier New', Courier, monospace;
 	width: 100%;
@@ -100,6 +221,7 @@ header {
 	justify-content: center;
 	align-items: center;
 	flex-direction: column;
+	gap: 1em
 }
 
 .text {
