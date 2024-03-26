@@ -9,16 +9,7 @@ export const storeFileLocally = async (
 	fileNameOrIdLength: string | number,
 	filelocation: string = '',
 ): Promise<string> => {
-	const arr: string[] = dataurl.split(',')
-	const mimeMatch = arr[0].match(/:(.*?);/)
-	if (!mimeMatch) {
-		throw new Error('Invalid data URL')
-	}
-	const mime: string = mimeMatch[1]
-	const base64String: string = arr[1]
-	const binaryString: Buffer = Buffer.from(base64String, 'base64')
-
-	const ext = mimeTypes.extension(mime)
+	const { binaryString, ext } = parseDataUrl(dataurl)
 
 	const location = useRuntimeConfig().public.nitroStorage.mount
 
@@ -47,4 +38,25 @@ const generateRandomId = (length: number) => {
 		randomId += characters.charAt(Math.floor(Math.random() * characters.length))
 	}
 	return randomId
+}
+
+/**
+Parses a data URL and returns an object with the binary data and the file extension.
+@param {string} file - The data URL
+@returns {{ binaryString: Buffer, ext: string }} - An object with the binary data and the file extension
+ */
+export const parseDataUrl = (file: string) => {
+	const arr: string[] = file.split(',')
+	const mimeMatch = arr[0].match(/:(.*?);/)
+	if (!mimeMatch) {
+		throw new Error('Invalid data URL')
+	}
+	const mime: string = mimeMatch[1]
+	const base64String: string = arr[1]
+	const binaryString: Buffer = Buffer.from(base64String, 'base64')
+
+	const ext = mimeTypes.extension(mime)
+	// const ext = mimeType.split('/')[1]
+
+	return { binaryString, ext }
 }

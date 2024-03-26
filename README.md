@@ -7,7 +7,6 @@
 [![License][license-src]][license-href]
 [![Nuxt][nuxt-src]][nuxt-href]
 
-> ⚠️ WARNING : This project is still experimental and under testing. When I make all of the testing necessary I will be removing this warning. If you encounter any issues please open a [new issue](https://github.com/NyllRE/nuxt-nitro-storage/issues/new).
 
 Easy solution to store files in your nuxt apps. Be able to upload files from the frontend and recieve them from the backend to then save the files in your project.
 
@@ -20,7 +19,8 @@ Easy solution to store files in your nuxt apps. Be able to upload files from the
 <!-- Highlight some of the features your module provide here -->
 
 -  📁 &nbsp;Get files from file input and make them ready to send to backend
--  🖴 &nbsp;Store files in your Nuxt backend with Nitro Engine
+-  ⚗️ &nbsp;Serialize files in the backend to be able to use them appropriately
+-  🖴 &nbsp;Store files in a specified location in your Nuxt backend with Nitro Engine
 
 ## Quick Setup
 
@@ -54,9 +54,13 @@ You can currently configure a single setting of the `nuxt-nitro-storage` module.
 ```js
 export default defineNuxtConfig({
 	modules: ['nuxt-nitro-storage'],
-	storage: {
-		// location starts from the root
-		location: 'public/files',
+	nitroStorage: {
+		// enter the absolute path to the location of your storage
+		mount: '/home/$USR/development/nuxt-nitro-storage/server/files',
+
+		// {OR} use environment variables (recommended)
+		mount: process.env.mount
+		// you need to set the mount in your .env file at the root of your project
 	},
 })
 ```
@@ -76,9 +80,9 @@ You can use Nuxt Storage to get the files from the `<input>` tag:
 	const { handleFileInput, files } = useNitroStorage()
 </script>
 ```
-> the `files` return a ref object that contains the files
+The `files` return a ref object that contains the files
 
-here's an example of using files to send them to the backend:
+Here's an example of using files to send them to the backend:
 ```html
 <template>
 	<input type="file" @input="handleFileInput" />
@@ -112,6 +116,10 @@ export default defineEventHandler(async (event) => {
 		'/userFiles'  // the folder the file will be stored in
 	)
 
+	// {OR}
+
+	const {binaryString, ext} = parseDataUrl(file.content)
+
 	return 'success!'
 })
 
@@ -122,6 +130,22 @@ interface File {
 ```
 
 And that's it! Now you can store any file in your nuxt project from the user ✨
+
+## Contribution
+Run into a problem? Open a [new issue](https://github.com/NyllRE/nuxt-nitro-storage/issues/new). I'll try my best to include all the features requested if it is fitting to the scope of the project.
+
+Want to add some feature? PRs are welcome!
+- Clone this repository
+- install the dependencies
+- prepare the project
+- run dev server
+```bash
+git clone https://github.com/NyllRE/nuxt-nitro-storage && cd nuxt-nitro-storage
+npm i
+npm run dev:prepare
+npm run dev
+```
+
 
 <!-- Badges -->
 
