@@ -118,7 +118,8 @@ export default defineEventHandler(async (event) => {
 
 	// {OR}
 
-	const {binaryString, ext} = parseDataUrl(file.content)
+	// Parses a data URL and returns an object with the binary data and the file extension.
+	const { binaryString, ext } = parseDataUrl(file.content)
 
 	return 'success!'
 })
