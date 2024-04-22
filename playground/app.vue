@@ -46,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-const { handleFileInput, files } = useNitroStorage()
+const { handleFileInput, files } = useFileStorage()
 
 const fileInput = ref<HTMLInputElement>()
 

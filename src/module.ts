@@ -8,15 +8,15 @@ export interface ModuleOptions {
 
 export default defineNuxtModule<ModuleOptions>({
 	meta: {
-		name: 'nuxt-nitro-storage',
-		configKey: 'nitroStorage',
+		name: 'nuxt-file-storage',
+		configKey: 'fileStorage',
 	},
 	//? Default configuration options of the Nuxt module
 	// defaults: {
 	// },
 	setup(options, nuxt) {
-		nuxt.options.runtimeConfig.public.nitroStorage = defu(
-			nuxt.options.runtimeConfig.public.nitroStorage,
+		nuxt.options.runtimeConfig.public.fileStorage = defu(
+			nuxt.options.runtimeConfig.public.fileStorage,
 			{
 				...options,
 			},

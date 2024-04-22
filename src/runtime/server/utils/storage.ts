@@ -11,7 +11,7 @@ export const storeFileLocally = async (
 ): Promise<string> => {
 	const { binaryString, ext } = parseDataUrl(dataurl)
 
-	const location = useRuntimeConfig().public.nitroStorage.mount
+	const location = useRuntimeConfig().public.fileStorage.mount
 
 	const filename =
 		typeof fileNameOrIdLength == 'number'
@@ -27,7 +27,7 @@ export const storeFileLocally = async (
 }
 
 export const deleteFile = async (filename: string, filelocation: string = '') => {
-	const location = useRuntimeConfig().public.nitroStorage.mount
+	const location = useRuntimeConfig().public.fileStorage.mount
 	await rm(`${location}${filelocation}/${filename}`)
 }
 

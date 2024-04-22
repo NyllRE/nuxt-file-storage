@@ -1,6 +1,6 @@
 export default defineNuxtConfig({
 	modules: ['../src/module'],
-	nitroStorage: {
+	fileStorage: {
 		mount: process.env.mount,
 	},
 	devtools: { enabled: true },

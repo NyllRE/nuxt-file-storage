@@ -3,5 +3,5 @@
 </template>
 
 <script setup>
-const { handleFileInput, files } = useNitroStorage()
+const { handleFileInput, files } = useFileStorage()
 </script>

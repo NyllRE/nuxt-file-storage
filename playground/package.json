@@ -1,6 +1,6 @@
 {
 	"private": true,
-	"name": "nuxt-nitro-storage-playground",
+	"name": "nuxt-file-storage-playground",
 	"type": "module",
 	"scripts": {
 		"dev": "nuxi dev",
