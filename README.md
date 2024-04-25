@@ -1,4 +1,4 @@
-![Nuxt Storage Banner](./playground/public/nuxt-file-storage-banner.svg)
+![Nuxt File Storage Banner](./playground/public/nuxt-file-storage-banner.svg)
 
 # Nuxt File Storage
 
