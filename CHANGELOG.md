@@ -1,6 +1,10 @@
 # Changelog
 
 
+## v0.2.1
+
+[compare changes](https://github.com/NyllRE/nuxt-file-storage/compare/v0.1.4...v0.2.1)
+
 ## v0.1.4
 
 [compare changes](https://github.com/NyllRE/nuxt-file-storage/compare/v0.1.3...v0.1.4)
