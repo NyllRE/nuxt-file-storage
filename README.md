@@ -112,7 +112,7 @@ export default defineEventHandler(async (event) => {
 
 	await storeFileLocally(
 		file.content, // the stringified version of the file
-		file.name,    // the name of the file
+		8,            // you can add a name for the file or length of Unique ID that will be automatically generated!
 		'/userFiles'  // the folder the file will be stored in
 	)
 
