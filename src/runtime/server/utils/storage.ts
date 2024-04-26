@@ -1,5 +1,6 @@
-import mimeTypes from 'mime-types'
 import { writeFile, rm, mkdir } from 'fs/promises'
+import { useRuntimeConfig } from '#imports'
+
 /**
  * @returns mime type
  * @prop fileNameOrIdLength: you can pass a string or a number, if you enter a string it will be the file name, if you enter a number it will generate a unique ID
@@ -10,7 +11,6 @@ export const storeFileLocally = async (
 	filelocation: string = '',
 ): Promise<string> => {
 	const { binaryString, ext } = parseDataUrl(dataurl)
-
 	const location = useRuntimeConfig().public.fileStorage.mount
 
 	const filename =
@@ -55,8 +55,7 @@ export const parseDataUrl = (file: string) => {
 	const base64String: string = arr[1]
 	const binaryString: Buffer = Buffer.from(base64String, 'base64')
 
-	const ext = mimeTypes.extension(mime)
-	// const ext = mimeType.split('/')[1]
+	const ext = mime.split('/')[1]
 
 	return { binaryString, ext }
 }

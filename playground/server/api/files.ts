@@ -1,5 +1,5 @@
 // import { storeFileLocally } from '../../../src/runtime/server/utils/storage'
-import { storeFileLocally } from '#nuxt/file-storage'
+// import { storeFileLocally } from '#nuxt/file-storage'
 
 export default defineEventHandler(async (event) => {
 	const { files } = await readBody<{ files: File[] }>(event)

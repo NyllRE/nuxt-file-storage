@@ -1,4 +1,4 @@
-import { defineNuxtModule, createResolver, addImportsDir, addTemplate } from '@nuxt/kit'
+import { defineNuxtModule, createResolver, addImportsDir, addServerScanDir } from '@nuxt/kit'
 import defu from 'defu'
 
 //? Module options TypeScript interface definition
@@ -23,42 +23,43 @@ export default defineNuxtModule<ModuleOptions>({
 		const resolve = createResolver(import.meta.url).resolve
 
 		addImportsDir(resolve('runtime/composables'))
-		addImportsDir(resolve('runtime/server/utils'))
+		addServerScanDir(resolve('./runtime/server'))
+		// addServerImportsDir(resolve('./runtime/server/utils'))
 
 		// virtual imports
-		nuxt.hook('nitro:config', (_config) => {
-			_config.alias = _config.alias || {}
+		// nuxt.hook('nitro:config', (_config) => {
+		// 	_config.alias = _config.alias || {}
 
-			// Inline module runtime in Nitro bundle
-			_config.externals = defu(typeof _config.externals === 'object' ? _config.externals : {}, {
-				inline: [resolve('./runtime')],
-			})
-			_config.alias['#nuxt/file-storage'] = resolve('./runtime/server/utils/storage')
-		})
+		// 	// Inline module runtime in Nitro bundle
+		// 	_config.externals = defu(typeof _config.externals === 'object' ? _config.externals : {}, {
+		// 		inline: [resolve('./runtime')],
+		// 	})
+		// 	_config.alias['#nuxt/file-storage'] = resolve('./runtime/server/utils/storage')
+		// })
 
-		// logger.info(join(nuxt.options.serverDir, options.mount!))
+		// // logger.info(join(nuxt.options.serverDir, options.mount!))
 
-		const template = addTemplate({
-			filename: 'types/nuxt-file-storage.d.ts',
-			getContents: () =>
-				[
-					"declare module '#nuxt/file-storage' {",
-					`	const storeFileLocally: typeof import('${resolve(
-						'./runtime/server/utils/storage',
-					)}').storeFileLocally`,
-					`	const deleteFile: typeof import('${resolve(
-						'./runtime/server/utils/storage',
-					)}').deleteFile`,
-					'}',
-					`	const parseDataUrl: typeof import('${resolve(
-						'./runtime/server/utils/storage',
-					)}').parseDataUrl`,
-					'}',
-				].join('\n'),
-		})
+		// const template = addTemplate({
+		// 	filename: 'types/nuxt-file-storage.d.ts',
+		// 	getContents: () =>
+		// 		[
+		// 			"declare module '#nuxt/file-storage' {",
+		// 			`	const storeFileLocally: typeof import('${resolve(
+		// 				'./runtime/server/utils/storage',
+		// 			)}').storeFileLocally`,
+		// 			`	const deleteFile: typeof import('${resolve(
+		// 				'./runtime/server/utils/storage',
+		// 			)}').deleteFile`,
+		// 			'}',
+		// 			`	const parseDataUrl: typeof import('${resolve(
+		// 				'./runtime/server/utils/storage',
+		// 			)}').parseDataUrl`,
+		// 			'}',
+		// 		].join('\n'),
+		// })
 
-		nuxt.hook('prepare:types', ({ references }) => {
-			references.push({ path: template.dst })
-		})
+		// nuxt.hook('prepare:types', ({ references }) => {
+		// 	references.push({ path: template.dst })
+		// })
 	},
 })
