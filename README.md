@@ -157,4 +157,4 @@ npm run dev
 [license-src]: https://img.shields.io/npm/l/nuxt-file-storage.svg?style=flat&colorA=18181B&colorB=28CF8D
 [license-href]: https://npmjs.com/package/nuxt-file-storage
 [nuxt-src]: https://img.shields.io/badge/Nuxt-18181B?logo=nuxt.js
-[nuxt-href]: https://nuxt.com
+[nuxt-href]: https://nuxt.com/modules/nuxt-file-storage
