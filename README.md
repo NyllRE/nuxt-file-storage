@@ -77,12 +77,15 @@ You can use Nuxt Storage to get the files from the `<input>` tag:
 
 <script setup>
 	// handleFileInput can handle multiple files
-	const { handleFileInput, files } = useFileStorage()
+	const { handleFileInput, files, filesList } = useFileStorage()
 </script>
 ```
-The `files` return a ref object that contains the files
+The `files` return a ref object that contains the files, `files` is file Base64 text
+
+The `filesList` return a ref object that contains the files, `filesList` is file Object
 
 Here's an example of using files to send them to the backend:
+#### Method one, use `files`
 ```html
 <template>
 	<input type="file" @input="handleFileInput" />
@@ -128,6 +131,49 @@ interface File {
 	name: string
 	content: string
 }
+```
+
+And that's it! Now you can store any file in your nuxt project from the user ✨
+#### Method two, use `filesList`
+```html
+<template>
+	<input type="file" @input="handleFileInput" />
+	<button @click="submit">submit</button>
+</template>
+
+<script setup>
+const { handleFileInput, filesList } = useFileStorage()
+
+const submit = async () => {
+	const formData= new FormData()
+	Array.from(filesList.value).forEach((file)=>{
+		formData.append('file', file)
+	})
+	const response = await $fetch('/api/files', {
+		method: 'POST',
+		body: formData
+	})
+}
+</script>
+```
+
+
+### Handling files in the backend
+using Nitro Server Engine, we will make an api route that recieves the files and stores them in the folder `userFiles`
+```ts
+export default defineEventHandler(async (event) => {
+	const files = (await readMultipartFormData(event)) || []
+	const file0 = files.find(item => item.name === 'file' && item.type)
+	if(!file0) return 'no file'
+	await storeFileFormData(
+		file, // the stringified version of the file
+		8,            // you can add a name for the file or length of Unique ID that will be automatically generated!
+		'/userFiles'  // the folder the file will be stored in
+	)
+
+	return 'success!'
+})
+
 ```
 
 And that's it! Now you can store any file in your nuxt project from the user ✨
