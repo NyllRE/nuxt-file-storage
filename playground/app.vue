@@ -36,17 +36,18 @@
 					/>
 				</label>
 				<button @click="submit">submit</button>
+				<button @click="submit2">submit type FormData</button>
 				<p>{{ approveUpload }}</p>
 			</div>
 			<div class="images">
 				<img v-for="file in files" :key="file.name" :src="file.content" alt="file.name" />
 			</div>
-	</div>
+		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-const { handleFileInput, files } = useFileStorage()
+const { handleFileInput, files,filesList } = useFileStorage()
 
 const fileInput = ref<HTMLInputElement>()
 
@@ -69,6 +70,22 @@ const submit = async () => {
 		body: {
 			files: files.value,
 		},
+	})
+	if (!response) return
+	approveUpload.value = 'Uploaded files successfully!'
+	fileLinks.value = response
+}
+
+// use send FormData
+const submit2=async()=>{
+	const formData= new FormData()
+	Array.from(filesList.value).forEach((file)=>{
+		formData.append('file', file)
+	})
+
+	const response = await $fetch('/api/files2', {
+		method: 'POST',
+		body: formData,
 	})
 	if (!response) return
 	approveUpload.value = 'Uploaded files successfully!'
