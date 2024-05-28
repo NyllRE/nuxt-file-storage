@@ -7,6 +7,10 @@ export default function () {
 		reader.onload = (e: any) => {
 			files.value.push({
 				...file,
+				name: file.name,
+				size: file.size,
+				type: file.type,
+				lastModified: file.lastModified,
 				content: e.target.result,
 			})
 		}
@@ -31,4 +35,5 @@ export default function () {
 interface File extends Blob {
 	content: any
 	name: string
+	lastModified: string
 }

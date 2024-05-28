@@ -10,4 +10,7 @@ export default defineEventHandler(async (event) => {
 interface File {
 	name: string
 	content: string
+	size: string
+	type: string
+	lastModified: string
 }
