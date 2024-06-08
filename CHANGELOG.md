@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.2.6
+
+[compare changes](https://github.com/NyllRE/nuxt-file-storage/compare/v0.2.5...v0.2.6)
+
+### 🏡 Chore
+
+- **release:** V0.2.3 ([fc8cffa](https://github.com/NyllRE/nuxt-file-storage/commit/fc8cffa))
+
+### ❤️ Contributors
+
+- NyllRE <nyll.redeast@gmail.com>
+
 ## v0.2.5
 
 [compare changes](https://github.com/NyllRE/nuxt-file-storage/compare/v0.2.4...v0.2.5)
