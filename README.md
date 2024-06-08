@@ -2,11 +2,11 @@
 
 # Nuxt File Storage
 
+[![Visits Badge](https://badges.pufler.dev/visits/nyllre/nuxt-file-storage)](https://badges.pufler.dev)
 [![npm version][npm-version-src]][npm-version-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
 [![License][license-src]][license-href]
 [![Nuxt][nuxt-src]][nuxt-href]
-
 
 Easy solution to store files in your nuxt apps. Be able to upload files from the frontend and recieve them from the backend to then save the files in your project.
 
