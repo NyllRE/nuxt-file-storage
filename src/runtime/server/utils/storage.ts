@@ -2,34 +2,50 @@ import { writeFile, rm, mkdir } from 'fs/promises'
 import { useRuntimeConfig } from '#imports'
 
 /**
- * @returns mime type
+ * #### Will store the file in the specified directory
+ * @returns file name: `${filename}`.`${fileExtension}`
+ * @prop file: provide the file object
  * @prop fileNameOrIdLength: you can pass a string or a number, if you enter a string it will be the file name, if you enter a number it will generate a unique ID
+ * @prop filelocation: provide the folder you wish to locate the file in
  */
 export const storeFileLocally = async (
-	dataurl: string,
+	file: File,
 	fileNameOrIdLength: string | number,
 	filelocation: string = '',
 ): Promise<string> => {
-	const { binaryString, ext } = parseDataUrl(dataurl)
+	const { binaryString, ext } = parseDataUrl(file.content)
 	const location = useRuntimeConfig().public.fileStorage.mount
+
+	//? Extract the file extension from the original filename
+	const originalExt = file.name.toString().split('.').pop() || ext
 
 	const filename =
 		typeof fileNameOrIdLength == 'number'
-			? generateRandomId(fileNameOrIdLength)
-			: fileNameOrIdLength
+			? `${generateRandomId(fileNameOrIdLength)}.${originalExt}`
+			: `${fileNameOrIdLength}.${originalExt}`
 
 	await mkdir(`${location}${filelocation}`, { recursive: true })
 
-	await writeFile(`${location}${filelocation}/${filename}.${ext}`, binaryString, {
+	await writeFile(`${location}${filelocation}/${filename}`, binaryString, {
 		flag: 'w',
 	})
-	return `${filename}.${ext}`
+
+	return filename
 }
 
 export const deleteFile = async (filename: string, filelocation: string = '') => {
 	const location = useRuntimeConfig().public.fileStorage.mount
 	await rm(`${location}${filelocation}/${filename}`)
 }
+
+interface File {
+	name: string
+	content: string
+	size: string
+	type: string
+	lastModified: string
+}
+
 
 const generateRandomId = (length: number) => {
 	const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
