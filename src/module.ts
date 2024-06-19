@@ -47,7 +47,7 @@ export default defineNuxtModule<ModuleOptions>({
 			if (!previousVersion || previousVersion !== version) {
 				// logger.info(`🎉 Nuxt File Storage updated to version ${version}! 🎉`)
 				logger.warn(
-					`There is a breaking change in the \`fileStoreLocally\` method, link to changelog:\nhttps://github.com/NyllRE/nuxt-file-storage/releases/tag/v${version}\n`,
+					`There is a breaking change in the \`storeFileLocally\` method, link to changelog:\nhttps://github.com/NyllRE/nuxt-file-storage/releases/tag/v${version}\n`,
 				)
 				// Store the current version in the runtime config
 				config.public.fileStorage.version = version
