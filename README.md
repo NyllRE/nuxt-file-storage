@@ -82,6 +82,9 @@ You can use Nuxt Storage to get the files from the `<input>` tag:
 ```
 The `files` return a ref object that contains the files
 
+> `handleFileInput` returns a promise in case you need to check if the file input has concluded
+
+
 Here's an example of using files to send them to the backend:
 ```html
 <template>
