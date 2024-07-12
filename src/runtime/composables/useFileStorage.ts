@@ -17,14 +17,22 @@ export default function () {
 		reader.readAsDataURL(file)
 	}
 
-	const handleFileInput = (event: any) => {
-		files.value.splice(0)
-		console.log('handleFileInput event: ' + event)
+	const handleFileInput = (event: any): Promise<void> => {
+		return new Promise<void>((resolve, reject) => {
+			files.value.splice(0)
+			// console.log('handleFileInput event: ' + event)
 
-		for (const file of event.target.files) {
-			serializeFile(file)
-		}
+			const promises = []
+			for (const file of event.target.files) {
+				promises.push(serializeFile(file))
+			}
+
+			Promise.all(promises)
+				.then(() => resolve())
+				.catch((error) => reject(error))
+		})
 	}
+
 
 	return {
 		files,
