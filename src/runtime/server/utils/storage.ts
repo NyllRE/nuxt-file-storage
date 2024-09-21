@@ -9,7 +9,7 @@ import { useRuntimeConfig } from '#imports'
  * @prop filelocation: provide the folder you wish to locate the file in
  */
 export const storeFileLocally = async (
-	file: File,
+	file: ServerFile,
 	fileNameOrIdLength: string | number,
 	filelocation: string = '',
 ): Promise<string> => {
@@ -37,15 +37,6 @@ export const deleteFile = async (filename: string, filelocation: string = '') =>
 	const location = useRuntimeConfig().public.fileStorage.mount
 	await rm(`${location}${filelocation}/${filename}`)
 }
-
-interface File {
-	name: string
-	content: string
-	size: string
-	type: string
-	lastModified: string
-}
-
 
 const generateRandomId = (length: number) => {
 	const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
