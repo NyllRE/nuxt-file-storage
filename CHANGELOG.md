@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.2.8
+
+[compare changes](https://github.com/NyllRE/nuxt-file-storage/compare/v0.2.7...v0.2.8)
+
+### 🩹 Fixes
+
+- Update to latest `@nuxt/module-builder` ([2d0c20c](https://github.com/NyllRE/nuxt-file-storage/commit/2d0c20c))
+
+### ❤️ Contributors
+
+- Daniel Roe ([@danielroe](http://github.com/danielroe))
+
 ## v0.2.7
 
 [compare changes](https://github.com/NyllRE/nuxt-file-storage/compare/v0.2.6...v0.2.7)
