@@ -34,8 +34,11 @@ export default function () {
 		await Promise.all(promises)
 	}
 
+	const clear = () => files.value = []
+
 	return {
 		files,
 		handleFileInput,
+		clear
 	}
 }
