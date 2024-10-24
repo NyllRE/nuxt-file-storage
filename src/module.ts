@@ -3,17 +3,15 @@ import {
 	createResolver,
 	addImportsDir,
 	addServerScanDir,
+	addTypeTemplate,
 	logger,
 } from '@nuxt/kit'
 // import { $fetch } from 'ofetch'
 import defu from 'defu'
 import { version } from '../package.json'
 
-//? Module options TypeScript interface definition
-export interface ModuleOptions {
-	mount: string
-	version: string
-}
+import type { ModuleOptions } from './types'
+export type * from './types'
 
 export default defineNuxtModule<ModuleOptions>({
 	meta: {
@@ -58,5 +56,9 @@ export default defineNuxtModule<ModuleOptions>({
 
 		addImportsDir(resolve('runtime/composables'))
 		addServerScanDir(resolve('./runtime/server'))
+		// Add the types as a template
+		addTypeTemplate({
+			filename: 'types.d.ts',
+		})
 	},
 })
