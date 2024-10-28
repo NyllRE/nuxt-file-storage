@@ -1,12 +1,13 @@
 import { writeFile, rm, mkdir } from 'fs/promises'
 import { useRuntimeConfig } from '#imports'
+import type { ServerFile } from '../../../../types/types'
 
 /**
  * #### Will store the file in the specified directory
  * @returns file name: `${filename}`.`${fileExtension}`
- * @prop file: provide the file object
- * @prop fileNameOrIdLength: you can pass a string or a number, if you enter a string it will be the file name, if you enter a number it will generate a unique ID
- * @prop filelocation: provide the folder you wish to locate the file in
+ * @prop `file`: provide the file object
+ * @prop `fileNameOrIdLength`: you can pass a string or a number, if you enter a string it will be the file name, if you enter a number it will generate a unique ID
+ * @prop `filelocation`: provide the folder you wish to locate the file in
  */
 export const storeFileLocally = async (
 	file: ServerFile,
@@ -26,13 +27,19 @@ export const storeFileLocally = async (
 
 	await mkdir(`${location}${filelocation}`, { recursive: true })
 
-	await writeFile(`${location}${filelocation}/${filename}`, binaryString, {
+	await writeFile(`${location}${filelocation}/${filename}`, binaryString as any, {
 		flag: 'w',
 	})
 
 	return filename
 }
 
+
+/**
+ *
+ * @param `filename`: the name of the file you want to delete
+ * @param `filelocation`: the folder where the file is located, if it is in the root folder you can leave it empty, if it is in a subfolder you can pass the name of the subfolder with a preceding slash: `/subfolder`
+ */
 export const deleteFile = async (filename: string, filelocation: string = '') => {
 	const location = useRuntimeConfig().public.fileStorage.mount
 	await rm(`${location}${filelocation}/${filename}`)

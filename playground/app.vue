@@ -27,7 +27,7 @@
 					<!-- <input type="file" id="images" accept="image/*" required> -->
 					<input
 						id="file-input"
-						:ref="fileInput"
+						ref="fileInput"
 						type="file"
 						name="files[]"
 						multiple
@@ -39,7 +39,7 @@
 				<p>{{ approveUpload }}</p>
 			</div>
 			<div class="images">
-				<img v-for="file in files" :key="file.name" :src="file.content" alt="file.name" />
+				<img v-for="file in files" :key="file.name" :src="(file.content as string)" alt="file.name" />
 			</div>
 	</div>
 	</div>

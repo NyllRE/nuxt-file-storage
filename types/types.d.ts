@@ -7,7 +7,7 @@ export interface ServerFile {
 }
 
 export interface ClientFile extends Blob {
-	content: string | ArrayBuffer
+	content: string | ArrayBuffer | null | undefined
 	name: string
 	lastModified: number
 }
