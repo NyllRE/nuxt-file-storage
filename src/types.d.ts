@@ -1,4 +1,4 @@
-interface ServerFile {
+export interface ServerFile {
 	name: string
 	content: string
 	size: string
@@ -6,8 +6,13 @@ interface ServerFile {
 	lastModified: string
 }
 
-interface ClientFile extends Blob {
+export interface ClientFile extends Blob {
 	content: string | ArrayBuffer
 	name: string
 	lastModified: number
+}
+
+export interface ModuleOptions {
+	mount: string
+	version: string
 }

@@ -9,11 +9,8 @@ import {
 import defu from 'defu'
 import { version } from '../package.json'
 
-//? Module options TypeScript interface definition
-export interface ModuleOptions {
-	mount: string
-	version: string
-}
+import type { ModuleOptions } from './types'
+export type * from './types'
 
 export default defineNuxtModule<ModuleOptions>({
 	meta: {
