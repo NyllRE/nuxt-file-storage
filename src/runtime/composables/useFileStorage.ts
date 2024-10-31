@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import type { ClientFile } from '../../types'
 
 export default function () {
 	const files = ref<ClientFile[]>([])
@@ -24,7 +25,6 @@ export default function () {
 	}
 
 	const handleFileInput = async (event: any) => {
-		files.value.splice(0)
 
 		const promises = []
 		for (const file of event.target.files) {
