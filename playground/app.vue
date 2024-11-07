@@ -22,9 +22,9 @@
 					@dragleave.prevent="(e: any) => {e.target.classList.remove('drag-active')}"
 					@drop.prevent="handleDrop"
 				>
+				<!-- <input id="images" type="file" accept="image/*" required @input="otherFileInput"> -->
 					<span class="drop-title">Drop files here</span>
 					or
-					<!-- <input type="file" id="images" accept="image/*" required> -->
 					<input
 						id="file-input"
 						ref="fileInput"
@@ -46,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-const { handleFileInput, files } = useFileStorage()
+const { handleFileInput, files } = useFileStorage({ clearOldFiles: true })
 
 const fileInput = ref<HTMLInputElement>()
 

@@ -1,7 +1,11 @@
 import { ref } from 'vue'
 import type { ClientFile } from '../../types'
 
-export default function () {
+type Options = {
+	clearOldFiles: boolean
+}
+
+export default function (options: Options = { clearOldFiles: true }) {
 	const files = ref<ClientFile[]>([])
 	const serializeFile = (file: ClientFile): Promise<void> => {
 		return new Promise<void>((resolve, reject) => {
@@ -25,6 +29,9 @@ export default function () {
 	}
 
 	const handleFileInput = async (event: any) => {
+		if (options.clearOldFiles) {
+			files.value.splice(0, files.value.length)
+		}
 
 		const promises = []
 		for (const file of event.target.files) {

@@ -77,15 +77,17 @@ You can use Nuxt Storage to get the files from the `<input>` tag:
 
 <script setup>
 	// handleFileInput can handle multiple files
-	const { handleFileInput, files } = useFileStorage()
+	// clearOldFiles: true by default, each time the user adds files the `files` ref will be cleared
+	const { handleFileInput, files } = useFileStorage({ clearOldFiles: false })
 </script>
 ```
 The `files` return a ref object that contains the files
 
 > `handleFileInput` returns a promise in case you need to check if the file input has concluded
 
+<br>
 
-Here's an example of using files to send them to the backend:
+Here's an example of using files to send them to the backend
 ```html
 <template>
 	<input type="file" @input="handleFileInput" />
@@ -105,7 +107,28 @@ const submit = async () => {
 }
 </script>
 ```
+<br>
 
+#### Handling multiple file input fields
+You have to create a new instance of `useFileStorage` for each input field
+
+
+```html
+<template>
+	<input type="file" @input="handleFileInput" multiple />   ← | 1 |
+	<input type="file" @input="profileInputHandler" />                 ← | 2 |
+</template>
+
+<script setup>
+	const { handleFileInput, files } = useFileStorage()       ← | 1 |
+
+	const {
+		handleFileInput: profileInputHandler,
+		files: profileImage
+	} = useFileStorage()                                               ← | 2 |
+</script>
+```
+by calling a new `useFileStorage` instance you seperate the internal logic between the inputs
 
 ### Handling files in the backend
 using Nitro Server Engine, we will make an api route that recieves the files and stores them in the folder `userFiles`
