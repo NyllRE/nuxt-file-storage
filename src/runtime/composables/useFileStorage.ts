@@ -28,9 +28,14 @@ export default function (options: Options = { clearOldFiles: true }) {
 		})
 	}
 
+	const clearFiles = () => {
+		files.value.splice(0, files.value.length)
+	}
+
+
 	const handleFileInput = async (event: any) => {
 		if (options.clearOldFiles) {
-			files.value.splice(0, files.value.length)
+			clearFiles()
 		}
 
 		const promises = []
@@ -44,5 +49,6 @@ export default function (options: Options = { clearOldFiles: true }) {
 	return {
 		files,
 		handleFileInput,
+		clearFiles,
 	}
 }
