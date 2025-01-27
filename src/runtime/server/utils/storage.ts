@@ -1,4 +1,4 @@
-import { writeFile, rm, mkdir } from 'fs/promises'
+import { writeFile, rm, mkdir, readdir } from 'fs/promises'
 import { useRuntimeConfig } from '#imports'
 import type { ServerFile } from '../../../types'
 
@@ -32,6 +32,27 @@ export const storeFileLocally = async (
 	})
 
 	return filename
+}
+
+/**
+ * #### Get file path in the specified directory
+ * @returns file path: `${config.fileStorage.mount}${filelocation}`/`${filename}`
+ * @prop `file`: provide the file name (return of storeFileLocally)
+ * @prop `filelocation`: provide the folder you wish to locate the file in
+ */
+export const GetFileLocallyPath = (filename: string, filelocation: string = ''): string => {
+	const location = useRuntimeConfig().public.fileStorage.mount
+	return `${location}${filelocation}/${filename}`
+}
+
+/**
+ * #### Get all files in the specified directory
+ * @returns all files in filelocation: `${config.fileStorage.mount}${filelocation}`/`${filename}`
+ * @prop `filelocation`: provide the folder you wish to locate the file in
+ */
+export const GetFilesLocally = async (filelocation: string = ''): Promise<string[]> => {
+	const location = useRuntimeConfig().public.fileStorage.mount
+	return await readdir(`${location}${filelocation}/`)
 }
 
 /**
