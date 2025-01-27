@@ -52,7 +52,7 @@ export const GetFileLocallyPath = (filename: string, filelocation: string = ''):
  */
 export const GetFilesLocally = async (filelocation: string = ''): Promise<string[]> => {
 	const location = useRuntimeConfig().public.fileStorage.mount
-	return await readdir(`${location}${filelocation}/`)
+	return await readdir(`${location}${filelocation}/`).catch(() => [])
 }
 
 /**
