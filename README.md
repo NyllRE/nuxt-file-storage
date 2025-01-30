@@ -133,8 +133,10 @@ by calling a new `useFileStorage` instance you seperate the internal logic betwe
 ### Handling files in the backend
 using Nitro Server Engine, we will make an api route that recieves the files and stores them in the folder `userFiles`
 ```ts
+import { ServerFile } from "nuxt-file-storage";
+
 export default defineEventHandler(async (event) => {
-	const { files } = await readBody<{ files: File[] }>(event)
+	const { files } = await readBody<{ files: ServerFile[] }>(event)
 
 	for ( const file of files ) {
 		await storeFileLocally(
@@ -151,11 +153,6 @@ export default defineEventHandler(async (event) => {
 
 	return 'success!'
 })
-
-interface File {
-	name: string
-	content: string
-}
 ```
 
 And that's it! Now you can store any file in your nuxt project from the user ✨
