@@ -8,7 +8,7 @@
 [![License][license-src]][license-href]
 [![Nuxt][nuxt-src]][nuxt-href]
 
-Easy solution to store files in your nuxt apps. Be able to upload files from the frontend and recieve them from the backend to then save the files in your project.
+Easy solution to store files in your nuxt apps. Be able to upload files from the frontend and receive them from the backend to then save the files in your project.
 
 -  [✨ &nbsp;Release Notes](/CHANGELOG.md)
 -  [🏀 Online playground](https://stackblitz.com/github/NyllRE/nuxt-file-storage?file=playground%2Fapp.vue)
@@ -128,10 +128,10 @@ You have to create a new instance of `useFileStorage` for each input field
 	} = useFileStorage()                                               ← | 2 |
 </script>
 ```
-by calling a new `useFileStorage` instance you seperate the internal logic between the inputs
+by calling a new `useFileStorage` instance you separate the internal logic between the inputs
 
 ### Handling files in the backend
-using Nitro Server Engine, we will make an api route that recieves the files and stores them in the folder `userFiles`
+using Nitro Server Engine, we will make an api route that receives the files and stores them in the folder `userFiles`
 ```ts
 import { ServerFile } from "nuxt-file-storage";
 
