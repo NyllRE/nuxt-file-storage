@@ -4,18 +4,17 @@ import type { ServerFile } from '../../../types'
 import path from 'path'
 
 /**
- * #### Will store the file in the specified directory
+ * @description Will store the file in the specified directory
+ * @param file provide the file object
+ * @param fileNameOrIdLength you can pass a string or a number, if you enter a string it will be the file name, if you enter a number it will generate a unique ID
+ * @param filelocation provide the folder you wish to locate the file in
  * @returns file name: `${filename}`.`${fileExtension}`
- * @prop `file`: provide the file object
- * @prop `fileNameOrIdLength`: you can pass a string or a number, if you enter a string it will be the file name, if you enter a number it will generate a unique ID
- * @prop `filelocation`: provide the folder you wish to locate the file in
+ *
  *
  * [Documentation](https://github.com/NyllRE/nuxt-file-storage#handling-files-in-the-backend)
  *
- * ---
  *
- * #### Example
- *
+ * @example
  * ```ts
  * import { ServerFile } from "nuxt-file-storage";
  *
@@ -50,10 +49,10 @@ export const storeFileLocally = async (
 }
 
 /**
- * #### Get file path in the specified directory
+ * @description Get file path in the specified directory
+ * @param filename provide the file name (return of storeFileLocally)
+ * @param filelocation provide the folder you wish to locate the file in
  * @returns file path: `${config.fileStorage.mount}/${filelocation}/${filename}`
- * @prop `filename`: provide the file name (return of storeFileLocally)
- * @prop `filelocation`: provide the folder you wish to locate the file in
  */
 export const getFileLocally = (filename: string, filelocation: string = ''): string => {
 	const location = useRuntimeConfig().public.fileStorage.mount
@@ -63,9 +62,9 @@ export const getFileLocally = (filename: string, filelocation: string = ''): str
 
 
 /**
- * #### Get all files in the specified directory
+ * @description Get all files in the specified directory
+ * @param filelocation provide the folder you wish to locate the file in
  * @returns all files in filelocation: `${config.fileStorage.mount}/${filelocation}`
- * @prop `filelocation`: provide the folder you wish to locate the file in
  */
 export const getFilesLocally = async (filelocation: string = ''): Promise<string[]> => {
 	const location = useRuntimeConfig().public.fileStorage.mount
@@ -75,8 +74,12 @@ export const getFilesLocally = async (filelocation: string = ''): Promise<string
 
 
 /**
- * @param `filename`: the name of the file you want to delete
- * @param `filelocation`: the folder where the file is located, if it is in the root folder you can leave it empty, if it is in a subfolder you can pass the name of the subfolder with a preceding slash: `/subfolder`
+ * @param filename the name of the file you want to delete
+ * @param filelocation the folder where the file is located, if it is in the root folder you can leave it empty, if it is in a subfolder you can pass the name of the subfolder with a preceding slash: `/subfolder`
+ * @example
+ * ```ts
+ * await deleteFile('/userFiles', 'requiredFile.txt')
+ * ```
  */
 export const deleteFile = async (filename: string, filelocation: string = '') => {
 	const location = useRuntimeConfig().public.fileStorage.mount
@@ -86,8 +89,8 @@ export const deleteFile = async (filename: string, filelocation: string = '') =>
 
 
 /**
- *
- * @param `length` the length of the random ID
+ * @description generates a random ID with the specified length
+ * @param length the length of the random ID
  * @returns a random ID with the specified length
  */
 const generateRandomId = (length: number) => {
@@ -100,16 +103,17 @@ const generateRandomId = (length: number) => {
 }
 
 /**
- * Parses a data URL and returns an object with the binary data and the file extension.
+ * @description Parses a data URL and returns an object with the binary data and the file extension.
  * @param {string} file - The data URL
- * @returns {{binaryString: Buffer, ext: string}} - An object with the binary data - file extension
+ * @returns {{binaryString: Buffer, ext: string}} An object with the binary data - file extension
  *
- *
+ * @example
  * ```ts
  *   const { binaryString, ext } = parseDataUrl(file.content)
  * ```
  */
-export const parseDataUrl = (file: string) => {
+export const parseDataUrl = (file: string):
+	{binaryString: Buffer, ext: string} => {
 	const arr: string[] = file.split(',')
 	const mimeMatch = arr[0].match(/:(.*?);/)
 	if (!mimeMatch) {
