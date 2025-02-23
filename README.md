@@ -149,7 +149,15 @@ export default defineEventHandler(async (event) => {
 		const { binaryString, ext } = parseDataUrl(file.content)
 	}
 
-	return 'success!'
+	// Deleting Files
+	await deleteFile('requiredFile.txt', '/userFiles')
+
+	// Get file path
+	await getFileLocally('requiredFile.txt', '/userFiles')
+	// returns: {AbsolutePath}/userFiles/requiredFile.txt
+
+	// Get all files in a folder
+	await getFilesLocally('/userFiles')
 })
 
 interface File {
