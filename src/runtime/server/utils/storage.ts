@@ -1,7 +1,7 @@
 import { writeFile, rm, mkdir, readdir } from 'fs/promises'
 import { useRuntimeConfig } from '#imports'
 import type { ServerFile } from '../../../types'
-import path from 'path'
+import { join } from 'path'
 
 /**
  * @description Will store the file in the specified directory
@@ -39,9 +39,9 @@ export const storeFileLocally = async (
 			? `${generateRandomId(fileNameOrIdLength)}.${originalExt}`
 			: `${fileNameOrIdLength}.${originalExt}`
 
-	await mkdir(path.join(location, filelocation), { recursive: true })
+	await mkdir(join(location, filelocation), { recursive: true })
 
-	await writeFile(path.join(location, filelocation, filename), binaryString as any, {
+	await writeFile(join(location, filelocation, filename), binaryString as any, {
 		flag: 'w',
 	})
 
@@ -57,7 +57,7 @@ export const storeFileLocally = async (
 export const getFileLocally = (filename: string, filelocation: string = ''): string => {
 	const location = useRuntimeConfig().public.fileStorage.mount
 	const normalizedFilelocation = filelocation.startsWith('/') ? filelocation.slice(1) : filelocation;
-	return path.join(location, normalizedFilelocation, filename)
+	return join(location, normalizedFilelocation, filename)
 }
 
 
@@ -69,7 +69,7 @@ export const getFileLocally = (filename: string, filelocation: string = ''): str
 export const getFilesLocally = async (filelocation: string = ''): Promise<string[]> => {
 	const location = useRuntimeConfig().public.fileStorage.mount
 	const normalizedFilelocation = filelocation.startsWith('/') ? filelocation.slice(1) : filelocation;
-	return await readdir(path.join(location, normalizedFilelocation)).catch(() => [])
+	return await readdir(join(location, normalizedFilelocation)).catch(() => [])
 }
 
 
@@ -84,7 +84,7 @@ export const getFilesLocally = async (filelocation: string = ''): Promise<string
 export const deleteFile = async (filename: string, filelocation: string = '') => {
 	const location = useRuntimeConfig().public.fileStorage.mount
 	const normalizedFilelocation = filelocation.startsWith('/') ? filelocation.slice(1) : filelocation;
-	await rm(path.join(location, normalizedFilelocation, filename))
+	await rm(join(location, normalizedFilelocation, filename))
 }
 
 

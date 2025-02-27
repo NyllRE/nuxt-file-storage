@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
 
 	const fileNames: string[] = []
 	for (const file of body.files) {
-		fileNames.push(storeFileLocally(file.content, file.name))
+		fileNames.push(await storeFileLocally(file.content, file.name))
 	}
 	return fileNames
 })

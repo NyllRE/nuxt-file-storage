@@ -7,7 +7,7 @@ import {
 } from '@nuxt/kit'
 // import { $fetch } from 'ofetch'
 import defu from 'defu'
-import { version } from '../package.json'
+// import { version } from '../package.json'
 
 import type { ModuleOptions } from './types'
 export type * from './types'
@@ -28,28 +28,26 @@ export default defineNuxtModule<ModuleOptions>({
 			...options,
 		})
 
-		if (nuxt.options.dev) {
-			// $fetch('https://registry.npmjs.org/nuxt-file-storage/latest')
-			// 	.then((release: any) => {
-			// 		if (release.version > version)
-			// 			logger.info(
-			// 				`A new version of Nuxt File Storage (v${release.version}) is available: https://github.com/nyllre/nuxt-file-storage/releases/latest`,
-			// 			)
-			// 	})
-			// 	.catch(() => {})
-
-			//? Check for updates and alert users of new features
-			//! I couldn't find a way to detect new updates to warn one time so it will warn every time the server runs again, if you know how to warn about a breaking change only the first run after an update feel free to open a new pull request
-			const previousVersion = config.public.fileStorage?.version
-			if (!previousVersion || previousVersion !== version) {
-				// logger.info(`🎉 Nuxt File Storage updated to version ${version}! 🎉`)
-				logger.warn(
-					`There is a breaking change in the \`storeFileLocally\` method, link to changelog:\nhttps://github.com/NyllRE/nuxt-file-storage/releases/tag/v${version}\n`,
-				)
-				// Store the current version in the runtime config
-				config.public.fileStorage.version = version
-			}
+		if (!config.public.fileStorage.mount) {
+			logger.error(
+				'Please provide a mount path for the file storage module in your nuxt.config.js',
+			)
+		} else {
+			logger.ready(
+				`Nuxt File Storage has mounted successfully`,
+			)
 		}
+
+		// if (nuxt.options.dev) {
+		// 	// $fetch('https://registry.npmjs.org/nuxt-file-storage/latest')
+		// 	// 	.then((release: any) => {
+		// 	// 		if (release.version > version)
+		// 	// 			logger.info(
+		// 	// 				`A new version of Nuxt File Storage (v${release.version}) is available: https://github.com/nyllre/nuxt-file-storage/releases/latest`,
+		// 	// 			)
+		// 	// 	})
+		// 	// 	.catch(() => {})
+		// }
 
 		const resolve = createResolver(import.meta.url).resolve
 

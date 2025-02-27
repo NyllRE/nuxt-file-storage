@@ -1,7 +1,10 @@
 export default defineNuxtConfig({
-	modules: ['../src/module'],
-	fileStorage: {
-		mount: process.env.mount,
+ modules: ['../src/module'],
+
+ fileStorage: {
+					mount: process.env.mount,
 	},
-	devtools: { enabled: true },
+
+ devtools: { enabled: true },
+ compatibilityDate: '2025-02-27',
 })
