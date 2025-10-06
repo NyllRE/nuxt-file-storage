@@ -130,6 +130,52 @@ You have to create a new instance of `useFileStorage` for each input field
 ```
 by calling a new `useFileStorage` instance you separate the internal logic between the inputs
 
+<br>
+
+#### Using with `defineExpose`
+The `files` ref is iterable, making it easy to use with `defineExpose` in child components:
+
+```html
+<!-- Child Component -->
+<template>
+	<input type="file" @input="handleFileInput" multiple />
+</template>
+
+<script setup>
+const { handleFileInput, files, clearFiles } = useFileStorage()
+
+defineExpose({
+	files,
+	handleFileInput,
+	clearFiles
+})
+</script>
+```
+
+```html
+<!-- Parent Component -->
+<template>
+	<ChildComponent ref="childRef" />
+	<button @click="iterateFiles">Show Files</button>
+</template>
+
+<script setup>
+const childRef = ref()
+
+const iterateFiles = () => {
+	// You can iterate directly without double .value
+	for (const file of childRef.value.files) {
+		console.log(file.name)
+	}
+	
+	// Or use .value for the array
+	console.log(childRef.value.files.value)
+}
+</script>
+```
+
+<br>
+
 ### Handling files in the backend
 using Nitro Server Engine, we will make an api route that receives the files and stores them in the folder `userFiles`
 ```ts
