@@ -5,8 +5,25 @@ type Options = {
 	clearOldFiles: boolean
 }
 
+// Helper function to create an iterable ref
+// This allows the ref to be used in for...of loops without needing .value
+function createIterableRef<T>(initialValue: T[]) {
+	const refObj = ref<T[]>(initialValue)
+	
+	// Add Symbol.iterator to make it iterable
+	Object.defineProperty(refObj, Symbol.iterator, {
+		value: function* () {
+			yield* refObj.value
+		},
+		enumerable: false,
+		configurable: true
+	})
+	
+	return refObj
+}
+
 export default function (options: Options = { clearOldFiles: true }) {
-	const files = ref<ClientFile[]>([])
+	const files = createIterableRef<ClientFile>([])
 	const serializeFile = (file: ClientFile): Promise<void> => {
 		return new Promise<void>((resolve, reject) => {
 			const reader = new FileReader()

@@ -29,7 +29,8 @@
 	},
 	"dependencies": {
 		"@nuxt/kit": "^3.15.4",
-		"defu": "^6.1.4"
+		"defu": "^6.1.4",
+		"nuxi": "^3.29.0"
 	},
 	"devDependencies": {
 		"@nuxt/devtools": "latest",
@@ -40,6 +41,7 @@
 		"@types/node": "^20.17.19",
 		"changelogen": "^0.5.7",
 		"eslint": "^8.57.1",
+		"jsdom": "^27.0.0",
 		"nuxt": "^3.15.4",
 		"vitest": "^1.6.1"
 	}
