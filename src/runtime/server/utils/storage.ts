@@ -1,7 +1,22 @@
 import { writeFile, rm, mkdir, readdir } from 'fs/promises'
-import { useRuntimeConfig } from '#imports'
 import type { ServerFile } from '../../../types'
-import { join } from 'path'
+import path from 'path'
+import {
+	normalizeRelative,
+	isSafeBasename,
+	ensureSafeBasename,
+	resolveAndEnsureInside,
+} from './path-safety'
+import { useRuntimeConfig } from '#imports'
+
+const getMount = (): string | undefined => {
+	try {
+		return useRuntimeConfig().public.fileStorage.mount
+	} catch (err) {
+		// when running outside of a Nuxt context (tests), fall back to env var
+		return process.env.FILE_STORAGE_MOUNT || process.env.NUXT_FILE_STORAGE_MOUNT
+	}
+}
 
 /**
  * @description Will store the file in the specified directory
@@ -29,19 +44,34 @@ export const storeFileLocally = async (
 	filelocation: string = '',
 ): Promise<string> => {
 	const { binaryString, ext } = parseDataUrl(file.content)
-	const location = useRuntimeConfig().public.fileStorage.mount
+	const location = getMount()
+	if (!location) throw new Error('fileStorage.mount is not configured')
 
 	//? Extract the file extension from the original filename
 	const originalExt = file.name.toString().split('.').pop() || ext
+	// sanitize extension (keep alphanumerics only)
+	const safeExt = originalExt.replace(/[^a-zA-Z0-9]/g, '') || ext
 
-	const filename =
-		typeof fileNameOrIdLength == 'number'
-			? `${generateRandomId(fileNameOrIdLength)}.${originalExt}`
-			: `${fileNameOrIdLength}.${originalExt}`
+	// generate or validate filename
+	let filename: string
+	if (typeof fileNameOrIdLength === 'number') {
+		filename = `${generateRandomId(fileNameOrIdLength)}.${safeExt}`
+	} else {
+		ensureSafeBasename(fileNameOrIdLength)
+		filename = `${fileNameOrIdLength}.${safeExt}`
+	}
 
-	await mkdir(join(location, filelocation), { recursive: true })
+	// normalize and validate filelocation
+	const normalizedFilelocation = normalizeRelative(filelocation)
 
-	await writeFile(join(location, filelocation, filename), binaryString as any, {
+	// ensure directory exists and is within mount
+	const dirPath = await resolveAndEnsureInside(location, normalizedFilelocation)
+	await mkdir(dirPath, { recursive: true })
+
+	// ensure target file will be inside mount (prevents traversal & symlink escape)
+	const targetPath = await resolveAndEnsureInside(location, normalizedFilelocation, filename)
+
+	await writeFile(targetPath, binaryString as any, {
 		flag: 'w',
 	})
 
@@ -55,11 +85,20 @@ export const storeFileLocally = async (
  * @returns file path: `${config.fileStorage.mount}/${filelocation}/${filename}`
  */
 export const getFileLocally = (filename: string, filelocation: string = ''): string => {
-	const location = useRuntimeConfig().public.fileStorage.mount
-	const normalizedFilelocation = filelocation.startsWith('/') ? filelocation.slice(1) : filelocation;
-	return join(location, normalizedFilelocation, filename)
+	const location = getMount()
+	if (!location) throw new Error('fileStorage.mount is not configured')
+	ensureSafeBasename(filename)
+	const normalizedFilelocation = normalizeRelative(filelocation)
+	// resolve synchronously enough for simple paths: use path.resolve and ensure inside mount
+	const resolved = path.resolve(location, normalizedFilelocation, filename)
+	// simple check: ensure resolved path starts with mount resolved
+	const mountResolved = path.resolve(location)
+	const relative = path.relative(mountResolved, resolved)
+	if (relative === '' || (!relative.startsWith('..' + path.sep) && relative !== '..')) {
+		return resolved
+	}
+	throw new Error('Resolved path is outside of configured mount')
 }
-
 
 /**
  * @description Get all files in the specified directory
@@ -67,11 +106,12 @@ export const getFileLocally = (filename: string, filelocation: string = ''): str
  * @returns all files in filelocation: `${config.fileStorage.mount}/${filelocation}`
  */
 export const getFilesLocally = async (filelocation: string = ''): Promise<string[]> => {
-	const location = useRuntimeConfig().public.fileStorage.mount
-	const normalizedFilelocation = filelocation.startsWith('/') ? filelocation.slice(1) : filelocation;
-	return await readdir(join(location, normalizedFilelocation)).catch(() => [])
+	const location = getMount()
+	if (!location) return []
+	const normalizedFilelocation = normalizeRelative(filelocation)
+	const dirPath = await resolveAndEnsureInside(location, normalizedFilelocation)
+	return await readdir(dirPath).catch(() => [])
 }
-
 
 /**
  * @param filename the name of the file you want to delete
@@ -82,11 +122,13 @@ export const getFilesLocally = async (filelocation: string = ''): Promise<string
  * ```
  */
 export const deleteFile = async (filename: string, filelocation: string = '') => {
-	const location = useRuntimeConfig().public.fileStorage.mount
-	const normalizedFilelocation = filelocation.startsWith('/') ? filelocation.slice(1) : filelocation;
-	await rm(join(location, normalizedFilelocation, filename))
+	const location = getMount()
+	if (!location) throw new Error('fileStorage.mount is not configured')
+	ensureSafeBasename(filename)
+	const normalizedFilelocation = normalizeRelative(filelocation)
+	const targetPath = await resolveAndEnsureInside(location, normalizedFilelocation, filename)
+	await rm(targetPath)
 }
-
 
 /**
  * @description generates a random ID with the specified length
@@ -112,8 +154,7 @@ const generateRandomId = (length: number) => {
  *   const { binaryString, ext } = parseDataUrl(file.content)
  * ```
  */
-export const parseDataUrl = (file: string):
-	{binaryString: Buffer, ext: string} => {
+export const parseDataUrl = (file: string): { binaryString: Buffer; ext: string } => {
 	const arr: string[] = file.split(',')
 	const mimeMatch = arr[0].match(/:(.*?);/)
 	if (!mimeMatch) {

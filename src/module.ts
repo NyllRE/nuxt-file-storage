@@ -28,15 +28,7 @@ export default defineNuxtModule<ModuleOptions>({
 			...options,
 		})
 
-		if (!config.public.fileStorage.mount) {
-			logger.error(
-				'Please provide a mount path for the file storage module in your nuxt.config.js',
-			)
-		} else {
-			logger.ready(
-				`Nuxt File Storage has mounted successfully`,
-			)
-		}
+		logger.ready(`Nuxt File Storage has mounted successfully`)
 
 		// if (nuxt.options.dev) {
 		// 	// $fetch('https://registry.npmjs.org/nuxt-file-storage/latest')
@@ -49,7 +41,8 @@ export default defineNuxtModule<ModuleOptions>({
 		// 	// 	.catch(() => {})
 		// }
 
-		const resolve = createResolver(import.meta.url).resolve
+		// Use __dirname for compatibility with CommonJS builds
+		const resolve = createResolver(__dirname).resolve
 
 		addImportsDir(resolve('runtime/composables'))
 		addServerScanDir(resolve('./runtime/server'))
