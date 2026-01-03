@@ -53,7 +53,7 @@ export const resolveAndEnsureInside = async (
 	if (relative === '' || (!relative.startsWith('..' + path.sep) && relative !== '..')) {
 		// Check for symlink escapes by resolving the nearest existing parent
 		let cur = targetResolved
-		while (true) {
+		while (cur) {
 			try {
 				await stat(cur)
 				break

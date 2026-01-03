@@ -6,11 +6,11 @@ import {
 	logger,
 } from '@nuxt/kit'
 // import { $fetch } from 'ofetch'
-import defu from 'defu'
+import { defu } from 'defu'
 // import { version } from '../package.json'
 
-import type { ModuleOptions } from './types'
-export type * from './types'
+import type { ModuleOptions } from './types.js'
+export type * from './types.js'
 
 export default defineNuxtModule<ModuleOptions>({
 	meta: {
