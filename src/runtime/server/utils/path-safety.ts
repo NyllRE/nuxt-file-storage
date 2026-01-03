@@ -1,5 +1,6 @@
 import path from 'path'
 import { realpath, stat } from 'fs/promises'
+import { createError } from '#imports'
 
 export const normalizeRelative = (p: string): string => {
 	if (!p) return ''
@@ -71,6 +72,8 @@ export const resolveAndEnsureInside = async (
 
 		return targetResolved
 	}
-
-	throw new Error('Resolved path is outside of configured mount')
+	throw createError({
+		statusCode: 400,
+		statusMessage: 'Resolved path is outside of configured mount',
+	})
 }

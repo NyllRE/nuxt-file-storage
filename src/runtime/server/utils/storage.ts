@@ -1,5 +1,6 @@
 import { writeFile, rm, mkdir, readdir } from 'fs/promises'
 import type { ServerFile } from '../../../types'
+import type { H3Event, EventHandlerRequest } from 'h3'
 import path from 'path'
 import {
 	normalizeRelative,
@@ -7,7 +8,8 @@ import {
 	ensureSafeBasename,
 	resolveAndEnsureInside,
 } from './path-safety'
-import { useRuntimeConfig } from '#imports'
+import { createError, useRuntimeConfig } from '#imports'
+import { createReadStream, promises as fsPromises } from 'fs'
 
 const getMount = (): string | undefined => {
 	try {
@@ -31,11 +33,12 @@ const getMount = (): string | undefined => {
  *
  * @example
  * ```ts
- * import { ServerFile } from "nuxt-file-storage";
+ * import type { ServerFile } from "nuxt-file-storage";
  *
- * const { file } = await readBody<{ files: ServerFile }>(event)
-
- * await storeFileLocally( file, 8, '/userFiles' )
+ * export default defineEventHandler(async (event) => {
+ * 	const { file } = await readBody<{ file: ServerFile }>(event);
+ * 	await storeFileLocally( file, 8, '/userFiles' );
+ * })
  * ```
  */
 export const storeFileLocally = async (
@@ -97,7 +100,10 @@ export const getFileLocally = (filename: string, filelocation: string = ''): str
 	if (relative === '' || (!relative.startsWith('..' + path.sep) && relative !== '..')) {
 		return resolved
 	}
-	throw new Error('Resolved path is outside of configured mount')
+	throw createError({
+		statusCode: 400,
+		statusMessage: 'Resolved path is outside of configured mount',
+	})
 }
 
 /**
@@ -167,4 +173,52 @@ export const parseDataUrl = (file: string): { binaryString: Buffer; ext: string 
 	const ext = mime.split('/')[1]
 
 	return { binaryString, ext }
+}
+
+/**
+ * Retrieve a file as a readable stream from local storage
+ * @param event H3 event to set response headers
+ * @param filename name of the file to retrieve
+ * @param filelocation folder where the file is located
+ * @returns Readable stream of the file
+ */
+export const retrieveFileLocally = async (
+	event: H3Event<EventHandlerRequest>,
+	filename: string,
+	filelocation: string = '',
+): Promise<NodeJS.ReadableStream> => {
+	// Ensure the file exists and is a regular file
+	const filePath = getFileLocally(filename, filelocation)
+	let stats
+	try {
+		stats = await fsPromises.stat(filePath)
+		if (!stats.isFile()) {
+			throw createError({ statusCode: 404, statusMessage: 'Not Found' })
+		}
+	} catch (err) {
+		throw createError({ statusCode: 404, statusMessage: 'Not Found' })
+	}
+
+	// Basic mime mapping for common types, fallback to octet-stream
+	const ext = path.extname(filePath).slice(1).toLowerCase()
+	const mimeMap: Record<string, string> = {
+		png: 'image/png',
+		jpg: 'image/jpeg',
+		jpeg: 'image/jpeg',
+		gif: 'image/gif',
+		svg: 'image/svg+xml',
+		pdf: 'application/pdf',
+		txt: 'text/plain',
+		html: 'text/html',
+		json: 'application/json',
+	}
+	const contentType = mimeMap[ext] || 'application/octet-stream'
+
+	// Set headers and return a readable stream (Nitro/h3 will handle streaming)
+	event.node.res.setHeader('Content-Type', contentType)
+	event.node.res.setHeader('Content-Length', String(stats.size))
+	// suggest inline disposition so browsers can display known types
+	event.node.res.setHeader('Content-Disposition', `inline; filename="${path.basename(filePath)}"`)
+
+	return createReadStream(filePath)
 }

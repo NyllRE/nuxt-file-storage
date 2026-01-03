@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import os from 'os'
 import path from 'path'
+import type { H3Event } from 'h3'
 import { mkdtemp, rm, readFile, writeFile, mkdir, symlink } from 'fs/promises'
 
 let tmpRoot = ''
@@ -16,6 +17,7 @@ import {
 	getFileLocally,
 	getFilesLocally,
 	deleteFile,
+	retrieveFileLocally,
 } from '../src/runtime/server/utils/storage'
 
 beforeEach(async () => {
@@ -32,6 +34,16 @@ afterEach(async () => {
 	mockMount = ''
 	delete process.env.FILE_STORAGE_MOUNT
 })
+
+// Minimal mock H3Event for testing headers
+const createMockEvent = (): H3Event =>
+	({
+		node: {
+			res: {
+				setHeader: vi.fn(),
+			},
+		},
+	} as unknown as H3Event)
 
 const dataUrl = 'data:text/plain;base64,aGVsbG8gd29ybGQK' // 'hello world\n'
 
@@ -53,13 +65,6 @@ describe('storage functions', () => {
 	it('storeFileLocally rejects traversal in filelocation', async () => {
 		const file = { name: 'a.txt', content: dataUrl }
 		await expect(storeFileLocally(file as any, 6, '../etc')).rejects.toThrow()
-	})
-
-	it('getFilesLocally lists saved files', async () => {
-		const file = { name: 'list.txt', content: dataUrl }
-		const name = await storeFileLocally(file as any, 'list', 'folder')
-		const files = await getFilesLocally('folder')
-		expect(files.includes(name)).toBe(true)
 	})
 
 	it('deleteFile removes a file and rejects outside deletions', async () => {
@@ -84,5 +89,27 @@ describe('storage functions', () => {
 
 		const file = { name: 's.txt', content: dataUrl }
 		await expect(storeFileLocally(file as any, 'safename', 'inner/escape')).rejects.toThrow()
+	})
+})
+
+describe('file retrieval functions', () => {
+	it('getFilesLocally lists saved files', async () => {
+		const file = { name: 'list.txt', content: dataUrl }
+		const name = await storeFileLocally(file as any, 'list', 'folder')
+		const files = await getFilesLocally('folder')
+		expect(files.includes(name)).toBe(true)
+	})
+
+	it('creates and retrieves a file through retrieveFileLocally', async () => {
+		const file = { name: 'getme.txt', content: dataUrl }
+		const filename = await storeFileLocally(file as any, 'getme', 'specificFolder')
+
+		const mockEvent = createMockEvent()
+		const stream = await retrieveFileLocally(mockEvent, filename, 'specificFolder')
+		let data = ''
+		for await (const chunk of stream) {
+			data += chunk.toString()
+		}
+		expect(data).toBe('hello world\n')
 	})
 })

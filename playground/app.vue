@@ -11,7 +11,7 @@
 		<div class="container">
 			<div class="input-container">
 				<div class="links">
-					<a v-for="link in fileLinks" :key="link" :href="`/userFiles/specificFolder/${link}`">{{ link }}</a>
+					<a v-for="link in fileLinks" :key="link" :href="`/api/get/${link}`">{{ link }}</a>
 				</div>
 				<label
 					id="dropcontainer"

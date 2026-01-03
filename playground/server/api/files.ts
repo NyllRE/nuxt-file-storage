@@ -6,5 +6,8 @@ export default defineEventHandler(async (event) => {
 	for (const file of files) {
 		fileNames.push(await storeFileLocally(file, 12, '/specificFolder'))
 	}
+
+	// ? test traversal attack prevention
+	// await storeFileLocally(files[0], 4, '../')
 	return fileNames
 })

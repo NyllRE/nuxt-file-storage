@@ -155,11 +155,15 @@ export default defineEventHandler(async (event) => {
 	await deleteFile('requiredFile.txt', '/userFiles')
 
 	// Get file path
-	await getFileLocally('requiredFile.txt', '/userFiles')
+	return await getFileLocally('requiredFile.txt', '/userFiles')
 	// returns: {AbsolutePath}/userFiles/requiredFile.txt
 
+	// Return a NodeStream of the file
+	// uses getFileLocally internally
+	return await retrieveFileLocally(event, 'requiredFile.txt', '/userFiles')
+
 	// Get all files in a folder
-	await getFilesLocally('/userFiles')
+	return await getFilesLocally('/userFiles')
 })
 ```
 
