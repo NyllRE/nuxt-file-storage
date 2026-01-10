@@ -69,7 +69,24 @@ export const storeFileLocally = async (
 
 	// ensure directory exists and is within mount
 	const dirPath = await resolveAndEnsureInside(location, normalizedFilelocation)
-	await mkdir(dirPath, { recursive: true })
+	try {
+		await mkdir(dirPath, { recursive: true })
+	} catch (err: any) {
+		if (err?.code === 'EEXIST') {
+			throw new Error(
+				`[nuxt-file-storage] EEXIST: A file already exists at "${dirPath}" where a directory was expected. ` +
+					`This typically happens when a file was accidentally created at a path meant for a folder. ` +
+					`Please remove or rename the conflicting file.`,
+			)
+		} else if (err?.code === 'ENOTDIR') {
+			throw new Error(
+				`[nuxt-file-storage] ENOTDIR: Cannot create directory "${dirPath}" because a parent path component is a file, not a directory. ` +
+					`Check if any part of the path "${normalizedFilelocation}" exists as a file instead of a folder. ` +
+					`Please remove or rename the conflicting file.`,
+			)
+		}
+		throw err
+	}
 
 	// ensure target file will be inside mount (prevents traversal & symlink escape)
 	const targetPath = await resolveAndEnsureInside(location, normalizedFilelocation, filename)
