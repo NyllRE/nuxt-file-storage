@@ -3,7 +3,7 @@
 	"compilerOptions": {
 		"target": "es2020",
 		"module": "node16",
-		"moduleResolution": "node16",
+		"moduleResolution": "nodenext",
 		"esModuleInterop": true,
 		"allowJs": true,
 		"forceConsistentCasingInFileNames": true,

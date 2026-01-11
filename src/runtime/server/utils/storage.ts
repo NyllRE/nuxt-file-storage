@@ -51,9 +51,11 @@ export const storeFileLocally = async (
 	if (!location) throw new Error('fileStorage.mount is not configured')
 
 	//? Extract the file extension from the original filename
-	const originalExt = file.name.toString().split('.').pop() || ext
+	const nameStr = file.name.toString()
+	// If the provided filename contains a dot, use that extension; otherwise fall back to MIME-derived ext
+	const originalExt = nameStr.includes('.') ? nameStr.split('.').pop() : ext
 	// sanitize extension (keep alphanumerics only)
-	const safeExt = originalExt.replace(/[^a-zA-Z0-9]/g, '') || ext
+	const safeExt = (originalExt || ext).replace(/[^a-zA-Z0-9]/g, '') || ext
 
 	// generate or validate filename
 	let filename: string
@@ -61,7 +63,21 @@ export const storeFileLocally = async (
 		filename = `${generateRandomId(fileNameOrIdLength)}.${safeExt}`
 	} else {
 		ensureSafeBasename(fileNameOrIdLength)
-		filename = `${fileNameOrIdLength}.${safeExt}`
+		const extensionFromFileName = fileNameOrIdLength.split('.').pop()
+
+		if (!fileNameOrIdLength.includes('.')) {
+			// Case 1: No extension → append the correct one
+			filename = `${fileNameOrIdLength}.${safeExt}`
+		} else if (extensionFromFileName === safeExt) {
+			// Case 2: Correct extension → use as-is
+			filename = fileNameOrIdLength
+		} else {
+			// Case 3: Wrong extension → warn and replace it
+			console.warn(
+				`[nuxt-file-storage] The provided filename "${fileNameOrIdLength}" does not have the expected extension ".${safeExt}". The correct extension will be appended.`,
+			)
+			filename = `${fileNameOrIdLength.split('.').slice(0, -1).join('.')}.${safeExt}`
+		}
 	}
 
 	// normalize and validate filelocation

@@ -1,10 +1,12 @@
 <template>
 	<div class="main">
-		<header>
-			<img src="/nuxt-storage-logo.svg" alt="" class="logo" />
+		<header style="gap:.75em">
 			<h1 class="text">
 				<span class="nuxt"> Nuxt </span>
-				Storage
+			</h1>
+			<img src="/nuxt-file-storage-logo.svg" alt="" class="logo" />
+			<h1 class="text">
+				Demo
 			</h1>
 		</header>
 
@@ -78,6 +80,8 @@ const submit = async () => {
 
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+
 
 pre {
 	width: 80%;
@@ -86,8 +90,7 @@ pre {
 }
 
 img.logo {
-	width: 5em;
-	animation: animate-in 0.5s alternate infinite;
+	width: 4.5em;
 }
 
 .container {
@@ -213,9 +216,8 @@ input[type=file]::file-selector-button:hover, button:hover {
   color: #222;
 }
 
-
 .main {
-	font-family: 'Courier New', Courier, monospace;
+	font-family: 'DM Sans', Courier, monospace;
 	width: 100%;
 	height: 100dvh;
 	display: flex;
