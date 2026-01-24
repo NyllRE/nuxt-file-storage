@@ -2,7 +2,7 @@
 
 # Nuxt File Storage
 
-[![Visits Badge](https://badges.pufler.dev/visits/nyllre/nuxt-file-storage)](https://badges.pufler.dev)
+<!-- [![Visits Badge](https://badges.pufler.dev/visits/nyllre/nuxt-file-storage)](https://badges.pufler.dev) -->
 [![npm version][npm-version-src]][npm-version-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
 [![License][license-src]][license-href]
