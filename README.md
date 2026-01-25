@@ -5,6 +5,7 @@
 <!-- [![Visits Badge](https://badges.pufler.dev/visits/nyllre/nuxt-file-storage)](https://badges.pufler.dev) -->
 [![npm version][npm-version-src]][npm-version-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
+[![nuxt.care health](https://img.shields.io/endpoint?url=https://nuxt.care/api/badge/nuxt-file-storage&style=flat&colorA=18181B&colorB=28CF8D)](https://nuxt.care/?search=nuxt-file-storage)
 [![License][license-src]][license-href]
 [![Nuxt][nuxt-src]][nuxt-href]
 
