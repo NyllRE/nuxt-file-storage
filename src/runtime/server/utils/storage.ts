@@ -4,7 +4,6 @@ import type { H3Event, EventHandlerRequest } from 'h3'
 import path from 'path'
 import {
 	normalizeRelative,
-	isSafeBasename,
 	ensureSafeBasename,
 	resolveAndEnsureInside,
 } from './path-safety'
@@ -14,7 +13,7 @@ import { createReadStream, promises as fsPromises } from 'fs'
 const getMount = (): string | undefined => {
 	try {
 		return useRuntimeConfig().public.fileStorage.mount
-	} catch (err) {
+	} catch {
 		// when running outside of a Nuxt context (tests), fall back to env var
 		return process.env.FILE_STORAGE_MOUNT || process.env.NUXT_FILE_STORAGE_MOUNT
 	}
@@ -228,7 +227,7 @@ export const retrieveFileLocally = async (
 		if (!stats.isFile()) {
 			throw createError({ statusCode: 404, statusMessage: 'Not Found' })
 		}
-	} catch (err) {
+	} catch {
 		throw createError({ statusCode: 404, statusMessage: 'Not Found' })
 	}
 

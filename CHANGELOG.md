@@ -1,5 +1,28 @@
 # Changelog
 
+## v0.3.2
+
+[compare changes](https://github.com/NyllRE/nuxt-file-storage/compare/v0.3.1...v0.3.2)
+
+### 🚀 Enhancements
+
+- Enhance filename handling in storeFileLocally and add comprehensive tests ([a6ada27](https://github.com/NyllRE/nuxt-file-storage/commit/a6ada27))
+
+### 🩹 Fixes
+
+- **release:** Remove unnecessary changelogen argument in release script ([662f380](https://github.com/NyllRE/nuxt-file-storage/commit/662f380))
+- Update configuration and improve module imports ([ede7d54](https://github.com/NyllRE/nuxt-file-storage/commit/ede7d54))
+- Improve error handling for directory creation in storeFileLocally ([a4c51a0](https://github.com/NyllRE/nuxt-file-storage/commit/a4c51a0))
+- Fixed typescript imports
+
+### 🏡 Chore
+
+- **release:** 0.3.2 ([51af35b](https://github.com/NyllRE/nuxt-file-storage/commit/51af35b))
+- **release:** 0.3.1 ([6e63bdf](https://github.com/NyllRE/nuxt-file-storage/commit/6e63bdf))
+
+### ❤️ Contributors
+
+- NyllRE ([@NyllRE](http://github.com/NyllRE))
 
 ## v0.2.9
 

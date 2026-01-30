@@ -57,7 +57,7 @@ export const resolveAndEnsureInside = async (
 			try {
 				await stat(cur)
 				break
-			} catch (error) {
+			} catch {
 				const parent = path.dirname(cur)
 				if (parent === cur) break
 				cur = parent
