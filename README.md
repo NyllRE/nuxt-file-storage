@@ -134,7 +134,7 @@ by calling a new `useFileStorage` instance you separate the internal logic betwe
 ### Handling files in the backend
 using Nitro Server Engine, we will make an api route that receives the files and stores them in the folder `userFiles`
 ```ts
-import { ServerFile } from "nuxt-file-storage";
+import { ServerFile } from "#file-storage/types";
 
 export default defineEventHandler(async (event) => {
 	const { files } = await readBody<{ files: ServerFile[] }>(event)
