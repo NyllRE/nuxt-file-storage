@@ -1,5 +1,5 @@
 import { writeFile, rm, mkdir, readdir } from 'fs/promises'
-import type { ServerFile } from '../../../types'
+import type { ServerFile } from '../../types'
 import type { H3Event, EventHandlerRequest } from 'h3'
 import path from 'path'
 import {

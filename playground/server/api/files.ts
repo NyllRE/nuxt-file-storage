@@ -1,4 +1,4 @@
-import type { ServerFile } from '../../../src/types'
+import { ServerFile } from "#file-storage/types"
 
 export default defineEventHandler(async (event) => {
 	const { files } = await readBody<{ files: ServerFile[] }>(event)
