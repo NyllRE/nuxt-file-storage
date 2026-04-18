@@ -5,8 +5,8 @@
 <!-- [![Visits Badge](https://badges.pufler.dev/visits/nyllre/nuxt-file-storage)](https://badges.pufler.dev) -->
 [![npm version][npm-version-src]][npm-version-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
-[![nuxt.care health](https://img.shields.io/endpoint?url=https://nuxt.care/api/badge/nuxt-file-storage&style=flat&colorA=18181B&colorB=28CF8D)](https://nuxt.care/?search=nuxt-file-storage)
 [![License][license-src]][license-href]
+[![nuxt.care health](https://img.shields.io/endpoint?url=https://nuxt.care/api/badge/nuxt-file-storage&style=flat&colorA=18181B&colorB=28CF8D)](https://nuxt.care/?search=nuxt-file-storage)
 [![Nuxt][nuxt-src]][nuxt-href]
 
 Easy solution to store files in your nuxt apps. Be able to upload files from the frontend and receive them from the backend to then save the files in your project.
@@ -188,11 +188,11 @@ npm run dev
 
 <!-- Badges -->
 
-[npm-version-src]: https://img.shields.io/npm/v/nuxt-file-storage/latest.svg?style=flat&colorA=18181B&colorB=28CF8D
-[npm-version-href]: https://npmjs.com/package/nuxt-file-storage
-[npm-downloads-src]: https://img.shields.io/npm/dm/nuxt-file-storage.svg?style=flat&colorA=18181B&colorB=28CF8D
-[npm-downloads-href]: https://npmjs.com/package/nuxt-file-storage
-[license-src]: https://img.shields.io/npm/l/nuxt-file-storage.svg?style=flat&colorA=18181B&colorB=28CF8D
-[license-href]: https://npmjs.com/package/nuxt-file-storage
+[npm-version-src]: https://npmx.dev/api/registry/badge/version/nuxt-file-storage
+[npm-version-href]: https://npmx.dev/package/nuxt-file-storage
+[npm-downloads-src]: https://npmx.dev/api/registry/badge/downloads-year/nuxt-file-storage
+[npm-downloads-href]: https://npmx.dev/package/nuxt-file-storage
+[license-src]: https://npmx.dev/api/registry/badge/license/nuxt-file-storage
+[license-href]: https://npmx.dev/package/nuxt-file-storage
 [nuxt-src]: https://img.shields.io/badge/Nuxt-18181B?logo=nuxt.js
 [nuxt-href]: https://nuxt.com/modules/nuxt-file-storage
