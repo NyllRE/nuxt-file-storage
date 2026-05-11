@@ -24,7 +24,6 @@
 					@dragleave.prevent="(e: any) => {e.target.classList.remove('drag-active')}"
 					@drop.prevent="handleDrop"
 				>
-				<!-- <input id="images" type="file" accept="image/*" required @input="otherFileInput"> -->
 					<span class="drop-title">Drop files here</span>
 					or
 					<input
@@ -41,47 +40,57 @@
 				<p>{{ approveUpload }}</p>
 			</div>
 			<div class="images">
-				<img v-for="file in files" :key="file.name" :src="(file.content as string)" alt="file.name" />
+				<img v-for="preview in previews" :key="preview" :src="preview" alt="uploaded file" />
 			</div>
 	</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-const { handleFileInput, files } = useFileStorage({ clearOldFiles: true })
+// Multipart mode — recommended
+const { handleFileInput, files } = useFileStorage({
+	deleteOldFiles: true,
+	storageMode: 'Multipart',
+})
 
 const fileInput = ref<HTMLInputElement>()
+const previews = ref<string[]>([])
 
 const handleDrop = (e: any) => {
 	alert("drag and drop functionality does not work currently, you can try to fix it in the repo :)")
-	// e.preventDefault()
-	// e.target.classList.remove("drag-active")
-	// if (fileInput.value) return
-	// files.value = e.dataTransfer.files
-	// console.log(e.dataTransfer.files, files.value);
-	// alert(fileInput.value.dispatchEvent(new Event("change event for file", {})))
-  }
+}
 
 const fileLinks = ref<string[]>([])
 const approveUpload = ref('')
 
+// Generate local previews from native File objects
+watch(files, (newFiles) => {
+	// FormData entries — iterate to build previews
+	if (newFiles instanceof FormData) {
+		previews.value = []
+		for (const [_, value] of newFiles.entries()) {
+			if (value instanceof File) {
+				previews.value.push(URL.createObjectURL(value))
+			}
+		}
+	}
+})
+
 const submit = async () => {
+	// Multipart mode: `files` is already a FormData, send directly
 	const response = await $fetch('/api/files', {
 		method: 'POST',
-		body: {
-			files: files.value,
-		},
+		body: files.value as FormData,
 	})
+
 	if (!response) return
 	approveUpload.value = 'Uploaded files successfully!'
 	fileLinks.value = response
 }
 </script>
 
-
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
-
 
 pre {
 	width: 80%;
@@ -106,7 +115,6 @@ img.logo {
 }
 
 .images {
-	/* margin-top: 2em; */
 	padding: 1em;
 	display: flex;
 	flex-direction: column;
@@ -118,18 +126,15 @@ img.logo {
 	scrollbar-width: thin;
 }
 
-/* Track */
 ::-webkit-scrollbar-track {
 	background-color: #87ff5b;
 }
 
-/* Thumb */
 ::-webkit-scrollbar-thumb {
 	background-color: #64ffc3;
 	border-radius: 10px;
 }
 
-/* Thumb hover */
 ::-webkit-scrollbar-thumb:hover {
 	background-color: #ccc;
 }
