@@ -1,36 +1,20 @@
 # Changelog
 
-## v0.3.3-beta.1
+## v0.3.3
 
-[compare changes](https://github.com/NyllRE/nuxt-file-storage/compare/v0.3.2...v0.3.3-beta.1)
+[compare changes](https://github.com/NyllRE/nuxt-file-storage/compare/v0.3.2...v0.3.3)
 
 ### 🚀 Enhancements
 
-- `clearFiles()` now accepts optional `fileInputRef?: Ref<HTMLInputElement | null>` to reset the HTML file input's DOM value in addition to the files list ([98bd5e0](https://github.com/NyllRE/nuxt-file-storage/commit/98bd5e0))
+- **#29** — `clearFiles()` now accepts optional `fileInputRef?: Ref<HTMLInputElement | null>` to reset the HTML file input's DOM value in addition to the files list ([98bd5e0](https://github.com/NyllRE/nuxt-file-storage/commit/98bd5e0))
 - Implement `createIterableRef<T>()` helper making `files` ref iterable for `defineExpose` / `v-for` usage ([76f6d4a](https://github.com/NyllRE/nuxt-file-storage/commit/76f6d4a), [a6ef2c1](https://github.com/NyllRE/nuxt-file-storage/commit/a6ef2c1))
 - Add playground demo component for iterable ref ([a6ef2c1](https://github.com/NyllRE/nuxt-file-storage/commit/a6ef2c1))
 - Add 5 unit tests for iterable ref composable ([a6ef2c1](https://github.com/NyllRE/nuxt-file-storage/commit/a6ef2c1))
 
 ### 🩹 Fixes
 
-- Update import path for ServerFile type in backend handling section ([553a375](https://github.com/NyllRE/nuxt-file-storage/commit/553a375))
-
-### ❤️ Contributors
-
-- NyllRE ([@NyllRE](http://github.com/NyllRE))
-
-## v0.3.3-beta.0
-
-[compare changes](https://github.com/NyllRE/nuxt-file-storage/compare/v0.3.2...v0.3.3-beta.0)
-
-### 🚀 Enhancements
-
-- Implement `createIterableRef<T>()` helper making `files` ref iterable for `defineExpose` / `v-for` usage ([76f6d4a](https://github.com/NyllRE/nuxt-file-storage/commit/76f6d4a), [a6ef2c1](https://github.com/NyllRE/nuxt-file-storage/commit/a6ef2c1))
-- Add playground demo component for iterable ref ([a6ef2c1](https://github.com/NyllRE/nuxt-file-storage/commit/a6ef2c1))
-- Add 5 unit tests for iterable ref composable ([a6ef2c1](https://github.com/NyllRE/nuxt-file-storage/commit/a6ef2c1))
-
-### 🩹 Fixes
-
+- **#33** — Duplicate file extension bug: `storeFileLocally` now checks if the filename already has the correct extension before appending ([a6ada27](https://github.com/NyllRE/nuxt-file-storage/commit/a6ada27))
+- **#36** — File overwrite / mkdir error: `writeFile` uses `{ flag: 'w' }` for safe overwriting; mkdir failures are caught with descriptive messages ([a4c51a0](https://github.com/NyllRE/nuxt-file-storage/commit/a4c51a0))
 - Update import path for ServerFile type in backend handling section ([553a375](https://github.com/NyllRE/nuxt-file-storage/commit/553a375))
 
 ### ❤️ Contributors
