@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.3.3-beta.0
+
+[compare changes](https://github.com/NyllRE/nuxt-file-storage/compare/v0.3.2...v0.3.3-beta.0)
+
+### 🚀 Enhancements
+
+- Implement `createIterableRef<T>()` helper making `files` ref iterable for `defineExpose` / `v-for` usage ([76f6d4a](https://github.com/NyllRE/nuxt-file-storage/commit/76f6d4a), [a6ef2c1](https://github.com/NyllRE/nuxt-file-storage/commit/a6ef2c1))
+- Add playground demo component for iterable ref ([a6ef2c1](https://github.com/NyllRE/nuxt-file-storage/commit/a6ef2c1))
+- Add 5 unit tests for iterable ref composable ([a6ef2c1](https://github.com/NyllRE/nuxt-file-storage/commit/a6ef2c1))
+
+### 🩹 Fixes
+
+- Update import path for ServerFile type in backend handling section ([553a375](https://github.com/NyllRE/nuxt-file-storage/commit/553a375))
+
+### ❤️ Contributors
+
+- NyllRE ([@NyllRE](http://github.com/NyllRE))
+
 ## v0.3.2
 
 [compare changes](https://github.com/NyllRE/nuxt-file-storage/compare/v0.3.1...v0.3.2)
