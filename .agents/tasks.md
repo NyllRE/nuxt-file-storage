@@ -5,21 +5,18 @@ Close out open GitHub issues from the v0.3.2 release cycle. The work is split in
 
 ---
 
-## Stage 1: PR #40 — Review & Document defineExpose with useFileStorage
+## Stage 1: ✅ Done — Implement Iterable Ref (replaces PR #40)
 
-**Issue:** #39 (closed) / PR #40 (draft, unmerged)
-**Status:** The `files` ref is not iterable when exposed via `defineExpose`. The workaround is `childRef.value.files.value`.
+**Issue:** #39 (closed) / PR #40 (removed)
+**Outcome:** Implemented `createIterableRef<T>()` helper in `useFileStorage.ts` with `Symbol.iterator` on the `files` ref. The ref is typed as `Ref<T[]> & Iterable<T>` so TypeScript is aware of both access patterns.
 
-**PR #40 changes (review):**
-- Adds `createIterableRef<T>()` helper with `Symbol.iterator` on the ref
-- Changes `files` from `ref<ClientFile[]>([])` to `createIterableRef<ClientFile>([])`
-- Adds ~15500 lines of noise (package-lock.json, BEFORE_AFTER.md, SOLUTION_SUMMARY.md, scripts/, playground test pages)
-- Adds `jsdom` to devDependencies and a separate `vitest.config.ts`
-
-**Decision:** Do NOT merge PR #40 as-is (too much noise). Instead:
-- [x] Implement `createIterableRef` helper in `useFileStorage.ts` with `Symbol.iterator`
-- [x] Update README with "Using with defineExpose" section using the iterable ref
-- [ ] Close PR #40
+- [x] Implement `createIterableRef` helper in `useFileStorage.ts:8-20`
+- [x] Type return as `Ref<T[]> & Iterable<T>` so TS knows about both `.value` and iteration
+- [x] Update README defineExpose section showing both iteration styles
+- [x] Create playground child component + demo section in app.vue
+- [x] Write 5 unit tests in `test/composable-iterable.test.ts`
+- [x] Fix vitest config (switch from broken Nuxt env to `happy-dom` + `#imports` alias)
+- [x] All 30 tests passing, lint clean
 
 ---
 

@@ -1,20 +1,15 @@
-import { defineVitestConfig } from '@nuxt/test-utils/config'
-import { loadEnv } from 'vite'
+import { defineConfig } from 'vitest/config'
+import { resolve } from 'path'
 
-export default defineVitestConfig({
+export default defineConfig({
+	resolve: {
+		alias: {
+			'#imports': resolve(__dirname, 'test/__mocks__/imports.ts'),
+		},
+	},
 	test: {
 		root: process.cwd(),
-		// https://github.com/vitest-dev/vitest/issues/2117#issuecomment-1890908753
-		env: loadEnv('', process.cwd(), ''),
-		environment: 'nuxt',
-		environmentOptions: {
-			nuxt: {
-				domEnvironment: 'jsdom',
-			},
-		},
-		reporters: ['default'],
-		// outputFile: {
-		//     html: './coverage/'
-		// }
+		environment: 'happy-dom',
+		include: ['test/**/*.test.ts'],
 	},
 })
