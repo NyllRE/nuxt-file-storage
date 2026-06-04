@@ -1,12 +1,26 @@
-import { ref } from 'vue'
+import { ref, type Ref } from 'vue'
 import type { ClientFile } from '../../types'
 
 type Options = {
 	clearOldFiles: boolean
 }
 
+function createIterableRef<T>(initialValue: T[]): Ref<T[]> & Iterable<T> {
+	const refObj = ref<T[]>(initialValue)
+
+	Object.defineProperty(refObj, Symbol.iterator, {
+		value: function* () {
+			yield* refObj.value
+		},
+		enumerable: false,
+		configurable: true,
+	})
+
+	return refObj as Ref<T[]> & Iterable<T>
+}
+
 export default function (options: Options = { clearOldFiles: true }) {
-	const files = ref<ClientFile[]>([])
+	const files = createIterableRef<ClientFile>([])
 	const serializeFile = (file: ClientFile): Promise<void> => {
 		return new Promise<void>((resolve, reject) => {
 			const reader = new FileReader()

@@ -84,6 +84,8 @@ You can use Nuxt Storage to get the files from the `<input>` tag:
 ```
 The `files` return a ref object that contains the files
 
+The `clearFiles` function empties the files list without needing to reassign `files.value = []`
+
 > `handleFileInput` returns a promise in case you need to check if the file input has concluded
 
 <br>
@@ -130,6 +132,53 @@ You have to create a new instance of `useFileStorage` for each input field
 </script>
 ```
 by calling a new `useFileStorage` instance you separate the internal logic between the inputs
+
+<br>
+
+#### Using with `defineExpose`
+
+The `files` ref is iterable, so it works naturally with `defineExpose` in child components:
+
+```html
+<!-- Child Component -->
+<template>
+	<input type="file" @input="handleFileInput" multiple />
+</template>
+
+<script setup>
+const { handleFileInput, files, clearFiles } = useFileStorage()
+
+defineExpose({
+	files,
+	handleFileInput,
+	clearFiles,
+})
+</script>
+```
+
+```html
+<!-- Parent Component -->
+<template>
+	<ChildComponent ref="childRef" />
+	<button @click="iterateFiles">Show Files</button>
+</template>
+
+<script setup>
+const childRef = ref()
+
+const iterateFiles = () => {
+	// Direct iteration — no double .value needed
+	for (const file of childRef.value.files) {
+		console.log(file.name)
+	}
+
+	// Traditional .value access still works
+	console.log(childRef.value.files.value)
+}
+</script>
+```
+
+<br>
 
 ### Handling files in the backend
 using Nitro Server Engine, we will make an api route that receives the files and stores them in the folder `userFiles`
