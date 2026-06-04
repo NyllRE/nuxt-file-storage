@@ -31,6 +31,7 @@ All three are already fixed in code. Bump version, publish.
 
 ### #29 — Add clearFiles function
 - Already exists in `useFileStorage.ts:31-33`, returned at line 52
+- [x] Accept optional `fileInputElement?: HTMLInputElement` param to also reset the HTML input (`input.value = ''`)
 - [ ] Close issue
 
 ### #36 — File overwrite / mkdir error

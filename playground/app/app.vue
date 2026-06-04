@@ -36,7 +36,7 @@
 						or
 						<input
 							id="file-input"
-							ref="fileInput"
+							ref="fileInputRef"
 							type="file"
 							name="files[]"
 							multiple
@@ -44,6 +44,7 @@
 						/>
 					</label>
 					<button @click="submit">submit</button>
+					<button @click="clearFileHandler">clear</button>
 					<p>{{ approveUpload }}</p>
 				</div>
 				<div class="images">
@@ -65,10 +66,16 @@
 </template>
 
 <script setup lang="ts">
-const { handleFileInput, files } = useFileStorage({ clearOldFiles: true });
+const { handleFileInput, files, clearFiles } = useFileStorage({ clearOldFiles: true });
 
 const handleDrop = (e: any) => {
 	alert("drag and drop functionality does not work currently, pr's are welcome :)");
+};
+
+const fileInputRef = ref<HTMLInputElement | null>(null);
+
+const clearFileHandler = () => {
+	clearFiles(fileInputRef);
 };
 
 const fileLinks = ref<string[]>([]);

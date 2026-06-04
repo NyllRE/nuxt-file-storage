@@ -84,7 +84,19 @@ You can use Nuxt Storage to get the files from the `<input>` tag:
 ```
 The `files` return a ref object that contains the files
 
-The `clearFiles` function empties the files list without needing to reassign `files.value = []`
+The `clearFiles` function empties the files list without needing to reassign `files.value = []`. It also accepts an optional `Ref<HTMLInputElement | null>` to clear the file input element in the DOM:
+
+```html
+<template>
+	<input type="file" ref="fileInputRef" @input="handleFileInput" multiple />
+	<button @click="clearFiles(fileInputRef)">Clear</button>
+</template>
+
+<script setup>
+const fileInputRef = ref<HTMLInputElement | null>(null)
+const { handleFileInput, clearFiles } = useFileStorage()
+</script>
+```
 
 > `handleFileInput` returns a promise in case you need to check if the file input has concluded
 

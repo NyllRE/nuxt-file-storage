@@ -1,4 +1,4 @@
-import { ref, type Ref } from 'vue'
+import { ref, type Ref, unref } from 'vue'
 import type { ClientFile } from '../../types'
 
 type Options = {
@@ -42,8 +42,12 @@ export default function (options: Options = { clearOldFiles: true }) {
 		})
 	}
 
-	const clearFiles = () => {
+	const clearFiles = (fileInputRef?: Ref<HTMLInputElement | null>) => {
 		files.value.splice(0, files.value.length)
+		const el = fileInputRef ? unref(fileInputRef) : null
+		if (el) {
+			el.value = ''
+		}
 	}
 
 

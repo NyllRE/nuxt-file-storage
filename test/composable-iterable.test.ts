@@ -1,3 +1,4 @@
+import { ref } from 'vue'
 import { describe, it, expect } from 'vitest'
 import useFileStorage from '../src/runtime/composables/useFileStorage'
 
@@ -43,7 +44,7 @@ describe('iterable files ref', () => {
 		expect(files.value[0].name).toBe('x.txt')
 	})
 
-	it('clearFiles still works', () => {
+	it('clearFiles clears the files ref', () => {
 		const { files, clearFiles } = useFileStorage()
 
 		files.value.push({} as any)
@@ -51,6 +52,20 @@ describe('iterable files ref', () => {
 
 		clearFiles()
 		expect(files.value).toHaveLength(0)
+	})
+
+	it('clearFiles resets the HTML file input value via ref', () => {
+		const { clearFiles } = useFileStorage()
+		const input = document.createElement('input')
+		input.type = 'file'
+
+		const dataTransfer = new DataTransfer()
+		dataTransfer.items.add(new File(['a'], 'a.txt'))
+		input.files = dataTransfer.files
+
+		const inputRef = ref<HTMLInputElement | null>(input)
+		clearFiles(inputRef)
+		expect(input.value).toBe('')
 	})
 
 	it('can be spread into an array', () => {
