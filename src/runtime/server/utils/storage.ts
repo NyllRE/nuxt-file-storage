@@ -1,5 +1,5 @@
 import { writeFile, rm, mkdir, readdir } from 'fs/promises'
-import type { JsonFile, ServerFile, MultipartFileEntry } from '../../types'
+import type { ServerFile, File, MultipartFileEntry } from '../../types'
 import type { H3Event, EventHandlerRequest } from 'h3'
 import path from 'path'
 import {
@@ -10,8 +10,6 @@ import {
 import { createError, useRuntimeConfig } from '#imports'
 import { createReadStream, promises as fsPromises } from 'fs'
 
-// ─── helpers ─────────────────────────────────────────────────────────────────
-
 const getMount = (): string | undefined => {
 	try {
 		return useRuntimeConfig().public.fileStorage.mount
@@ -21,194 +19,133 @@ const getMount = (): string | undefined => {
 }
 
 /**
- * Parses a data URL and returns the binary buffer + extension.
- * Only works for base64 files (the JSON method).
+ * @description Shared helper to write binary data to the filesystem after validating the path.
  */
-export const parseDataUrl = (file: string): { binaryString: Buffer; ext: string } => {
-	const arr = file.split(',')
-	if (arr.length !== 2 || !arr[1]) {
-		throw new Error('Invalid data URL: missing base64 payload')
-	}
-	const mimeMatch = arr[0].match(/:(.*?);/)
-	if (!mimeMatch) throw new Error('Invalid data URL: missing MIME type')
-	const mime = mimeMatch[1]
-	const base64String = arr[1]
-	const binaryString = Buffer.from(base64String, 'base64')
-	const ext = mime.split('/')[1]
-	return { binaryString, ext }
-}
-
-const generateRandomId = (length: number) => {
-	const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-	let randomId = ''
-	for (let i = 0; i < length; i++) {
-		randomId += characters.charAt(Math.floor(Math.random() * characters.length))
-	}
-	return randomId
-}
-
-/**
- * Resolve the final filename, handling extension logic.
- */
-const resolveFilename = (
-	sourceName: string,
-	fileNameOrIdLength: string | number,
-	fallbackExt: string,
-): string => {
-	const originalExt = sourceName.includes('.')
-		? sourceName.split('.').pop()!
-		: fallbackExt
-	const safeExt = originalExt.replace(/[^a-zA-Z0-9]/g, '') || fallbackExt
-
-	if (typeof fileNameOrIdLength === 'number') {
-		return `${generateRandomId(fileNameOrIdLength)}.${safeExt}`
-	}
-
-	ensureSafeBasename(fileNameOrIdLength)
-	const extensionFromFileName = fileNameOrIdLength.split('.').pop()
-
-	if (!fileNameOrIdLength.includes('.')) {
-		return `${fileNameOrIdLength}.${safeExt}`
-	}
-
-	if (extensionFromFileName === safeExt) {
-		return fileNameOrIdLength
-	}
-
-	console.warn(
-		`[nuxt-file-storage] The provided filename "${fileNameOrIdLength}" does not have the expected extension ".${safeExt}". The correct extension will be appended.`,
-	)
-	return `${fileNameOrIdLength.split('.').slice(0, -1).join('.')}.${safeExt}`
-}
-
-/**
- * Internal: resolve mount dir, write file, return filename.
- */
-const writeToFilesystem = async (
-	rawName: string,
-	fallbackExt: string,
-	buffer: Buffer,
+const writeToFileSystem = async (
+	binaryData: Buffer,
 	fileNameOrIdLength: string | number,
 	filelocation: string,
+	originalFileName: string,
+	originalExt: string,
 ): Promise<string> => {
 	const location = getMount()
 	if (!location) throw new Error('fileStorage.mount is not configured')
 
-	const filename = resolveFilename(rawName, fileNameOrIdLength, fallbackExt)
-	const normalizedFilelocation = normalizeRelative(filelocation)
+	const safeExt = originalExt.replace(/[^a-zA-Z0-9]/g, '') || originalExt
 
+	let filename: string
+	if (typeof fileNameOrIdLength === 'number') {
+		filename = `${generateRandomId(fileNameOrIdLength)}.${safeExt}`
+	} else {
+		ensureSafeBasename(fileNameOrIdLength)
+		const extensionFromFileName = fileNameOrIdLength.split('.').pop()
+
+		if (!fileNameOrIdLength.includes('.')) {
+			filename = `${fileNameOrIdLength}.${safeExt}`
+		} else if (extensionFromFileName === safeExt) {
+			filename = fileNameOrIdLength
+		} else {
+			console.warn(
+				`[nuxt-file-storage] The provided filename "${fileNameOrIdLength}" does not have the expected extension ".${safeExt}". The correct extension will be appended.`,
+			)
+			filename = `${fileNameOrIdLength.split('.').slice(0, -1).join('.')}.${safeExt}`
+		}
+	}
+
+	const normalizedFilelocation = normalizeRelative(filelocation)
 	const dirPath = await resolveAndEnsureInside(location, normalizedFilelocation)
 	try {
 		await mkdir(dirPath, { recursive: true })
 	} catch (err: any) {
 		if (err?.code === 'EEXIST') {
 			throw new Error(
-				`[nuxt-file-storage] EEXIST: A file already exists at "${dirPath}" where a directory was expected.`,
+				`[nuxt-file-storage] EEXIST: A file already exists at "${dirPath}" where a directory was expected. ` +
+					`This typically happens when a file was accidentally created at a path meant for a folder. ` +
+					`Please remove or rename the conflicting file.`,
 			)
 		} else if (err?.code === 'ENOTDIR') {
 			throw new Error(
-				`[nuxt-file-storage] ENOTDIR: Cannot create directory "${dirPath}" because a parent path component is a file.`,
+				`[nuxt-file-storage] ENOTDIR: Cannot create directory "${dirPath}" because a parent path component is a file, not a directory. ` +
+					`Check if any part of the path "${normalizedFilelocation}" exists as a file instead of a folder. ` +
+					`Please remove or rename the conflicting file.`,
 			)
 		}
 		throw err
 	}
 
 	const targetPath = await resolveAndEnsureInside(location, normalizedFilelocation, filename)
-	await writeFile(targetPath, buffer, { flag: 'w' })
+
+	await writeFile(targetPath, binaryData as any, {
+		flag: 'w',
+	})
 
 	return filename
 }
 
-// ─── public API ──────────────────────────────────────────────────────────────
-
 /**
- * Store a file locally from a **multipart** form entry.
- *
- * Use this when files arrive via `readMultipartFormData()` (recommended).
- *
- * @param file                MultipartFileEntry with raw `data` (Uint8Array)
- * @param fileNameOrIdLength  filename string or random-ID length
- * @param filelocation        subfolder relative to mount
- * @returns                   the stored filename
- *
- * @example
- * ```ts
- * export default defineEventHandler(async (event) => {
- *   const files = (await readMultipartFormData(event)) || []
- *   const fileName = await storeFile(files[0], 12, '/userFiles')
- *   return fileName
- * })
- * ```
+ * @description Store a file from a multipart form upload.
+ * @param file the multipart file entry (from readMultipartFormData)
+ * @param fileNameOrIdLength string = custom name, number = random ID length
+ * @param filelocation the folder to store the file in
+ * @returns the stored file name
  */
 export const storeFile = async (
 	file: MultipartFileEntry,
 	fileNameOrIdLength: string | number,
 	filelocation: string = '',
 ): Promise<string> => {
-	const buffer = Buffer.from(file.data)
-	const fallbackExt = file.type.split('/')[1] || 'bin'
-	return writeToFilesystem(file.filename, fallbackExt, buffer, fileNameOrIdLength, filelocation)
+	const ext = file.filename.includes('.') ? (file.filename.split('.').pop() as string) : ''
+	return writeToFileSystem(
+		file.data,
+		fileNameOrIdLength,
+		filelocation,
+		file.filename,
+		ext,
+	)
 }
 
 /**
- * Store a file locally from a **JSON / base64** body.
- *
- * @deprecated Use `storeFile()` with `storageMode: 'Multipart'` instead.
- *
- * @param file                JsonFile object with base64 `content` (data URL)
- * @param fileNameOrIdLength  filename string or random-ID length
- * @param filelocation        subfolder relative to mount
- * @returns                   the stored filename
- *
- * @example
- * ```ts
- * export default defineEventHandler(async (event) => {
- *   const { files } = await readBody<{ files: File[] }>(event)
- *   const fileName = await storeFileJson(files[0], 8, '/userFiles')
- *   return fileName
- * })
- * ```
+ * @description Store a file from a JSON body (DataURL mode).
+ * @param file the file object (from JSON body)
+ * @param fileNameOrIdLength string = custom name, number = random ID length
+ * @param filelocation the folder to store the file in
+ * @returns the stored file name
  */
 export const storeFileJson = async (
-	file: JsonFile,
+	file: File,
 	fileNameOrIdLength: string | number,
 	filelocation: string = '',
 ): Promise<string> => {
 	const { binaryString, ext } = parseDataUrl(file.content)
-	return writeToFilesystem(file.name, ext, binaryString, fileNameOrIdLength, filelocation)
+	const originalExt = file.name.includes('.') ? (file.name.split('.').pop() as string) : ext
+	return writeToFileSystem(
+		binaryString,
+		fileNameOrIdLength,
+		filelocation,
+		file.name,
+		originalExt || ext,
+	)
 }
 
 /**
- * Legacy alias — calls `storeFile` or `storeFileJson` depending on input type.
- *
- * @deprecated Use `storeFile()` or `storeFileJson()` explicitly.
+ * @description Store the file in the specified directory
+ * @deprecated Use `storeFileJson` instead. Will be removed in v0.5.0.
  */
-export async function storeFileLocally(
-	file: MultipartFileEntry,
-	fileNameOrIdLength: string | number,
-	filelocation?: string,
-): Promise<string>
-
-export async function storeFileLocally(
-	file: JsonFile,
-	fileNameOrIdLength: string | number,
-	filelocation?: string,
-): Promise<string>
-
-export async function storeFileLocally(
-	file: MultipartFileEntry | File,
+export const storeFileLocally = async (
+	file: ServerFile,
 	fileNameOrIdLength: string | number,
 	filelocation: string = '',
-): Promise<string> {
-	if ('filename' in file && 'data' in file) {
-		return storeFile(file as MultipartFileEntry, fileNameOrIdLength, filelocation)
+): Promise<string> => {
+	const converted: File = {
+		name: file.name,
+		size: Number(file.size),
+		type: file.type,
+		lastModified: Number(file.lastModified),
+		content: file.content,
 	}
-	return storeFileJson(file as JsonFile, fileNameOrIdLength, filelocation)
+	return storeFileJson(converted, fileNameOrIdLength, filelocation)
 }
 
-/**
- * Get the absolute path of a locally stored file.
- */
 export const getFileLocally = (filename: string, filelocation: string = ''): string => {
 	const location = getMount()
 	if (!location) throw new Error('fileStorage.mount is not configured')
@@ -226,9 +163,6 @@ export const getFileLocally = (filename: string, filelocation: string = ''): str
 	})
 }
 
-/**
- * List all files in a local storage directory.
- */
 export const getFilesLocally = async (filelocation: string = ''): Promise<string[]> => {
 	const location = getMount()
 	if (!location) return []
@@ -237,17 +171,6 @@ export const getFilesLocally = async (filelocation: string = ''): Promise<string
 	return await readdir(dirPath).catch(() => [])
 }
 
-/**
- * Delete a locally stored file.
- *
- * @param filename    the name of the file to delete
- * @param filelocation the folder where the file is located
- *
- * @example
- * ```ts
- * await deleteFile('fileName.png', '/specificFolder')
- * ```
- */
 export const deleteFile = async (filename: string, filelocation: string = '') => {
 	const location = getMount()
 	if (!location) throw new Error('fileStorage.mount is not configured')
@@ -257,9 +180,30 @@ export const deleteFile = async (filename: string, filelocation: string = '') =>
 	await rm(targetPath)
 }
 
-/**
- * Retrieve a file as a readable stream (for serving to clients).
- */
+const generateRandomId = (length: number) => {
+	const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+	let randomId = ''
+	for (let i = 0; i < length; i++) {
+		randomId += characters.charAt(Math.floor(Math.random() * characters.length))
+	}
+	return randomId
+}
+
+export const parseDataUrl = (file: string): { binaryString: Buffer; ext: string } => {
+	const arr: string[] = file.split(',')
+	const mimeMatch = arr[0].match(/:(.*?);/)
+	if (!mimeMatch) {
+		throw new Error('Invalid data URL')
+	}
+	const mime: string = mimeMatch[1]
+	const base64String: string = arr[1]
+	const binaryString: Buffer = Buffer.from(base64String, 'base64')
+
+	const ext = mime.split('/')[1]
+
+	return { binaryString, ext }
+}
+
 export const retrieveFileLocally = async (
 	event: H3Event<EventHandlerRequest>,
 	filename: string,

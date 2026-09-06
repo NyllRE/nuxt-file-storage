@@ -1,23 +1,18 @@
 import { ref, type Ref, unref } from 'vue'
 import type { ClientFile } from '../../types'
 
-type StorageMode = 'DataURL' | 'Multipart'
-
-type SerializedFile = {
-	name: string
-	size: number
-	type: string
-	lastModified: number
-	content: string | ArrayBuffer | null
+type Options = {
+	deleteOldFiles?: boolean
+	/** @deprecated Use `deleteOldFiles` instead */
+	clearOldFiles?: boolean
+	storageMode?: 'Multipart' | 'DataURL'
+	onProgress?: (percentage: number) => void
 }
 
-type Options = {
-	/** If true, selecting new files clears the previous list. Default: true */
-	deleteOldFiles?: boolean
-	/** Legacy alias for deleteOldFiles. */
-	clearOldFiles?: boolean
-	/** Upload mode: 'DataURL' (base64 JSON, deprecated) or 'Multipart' (FormData, recommended). Default: 'DataURL' */
-	storageMode?: StorageMode
+type SubmitOptions = {
+	extraBody?: Record<string, any>
+	onProgress?: (percentage: number) => void
+	signal?: AbortSignal
 }
 
 function createIterableRef<T>(initialValue: T[]): Ref<T[]> & Iterable<T> {
@@ -34,98 +29,118 @@ function createIterableRef<T>(initialValue: T[]): Ref<T[]> & Iterable<T> {
 	return refObj as Ref<T[]> & Iterable<T>
 }
 
-/**
- * Composable for handling file inputs.
- *
- * Supports two modes:
- *  - **Multipart**: keeps files as native `File` objects in a `FormData` ref,
- *    ready to send directly as a multipart/form-data request.
- *  - **DataURL** (deprecated): serialises files to base64 data URLs for JSON
- *    bodies while preserving the legacy iterable `files` ref.
- */
 export default function (options: Options = {}) {
-	const deleteOldFiles = options.deleteOldFiles ?? options.clearOldFiles ?? true
-	const storageMode: StorageMode = options.storageMode ?? 'DataURL'
+	const isMultipart = (options.storageMode ?? 'Multipart') === 'Multipart'
+	const shouldDeleteOld = options.deleteOldFiles ?? options.clearOldFiles ?? true
 
-	const files = storageMode === 'Multipart'
-		? ref<FormData>(new FormData())
-		: createIterableRef<ClientFile>([])
-	const jsonFiles = ref<SerializedFile[]>([])
+	const formData = ref<FormData>(new FormData())
+	const dataUrlFiles = createIterableRef<ClientFile>([])
+
+	const files: FormData | (Ref<ClientFile[]> & Iterable<ClientFile>) = isMultipart
+		? formData.value
+		: dataUrlFiles
+
+	const serializeFile = (file: ClientFile): Promise<void> => {
+		return new Promise<void>((resolve, reject) => {
+			const reader = new FileReader()
+			reader.onload = (e: ProgressEvent<FileReader>) => {
+				dataUrlFiles.value.push({
+					...file,
+					name: file.name,
+					size: file.size,
+					type: file.type,
+					lastModified: file.lastModified,
+					content: e.target?.result,
+				})
+				resolve()
+			}
+			reader.onerror = (error) => {
+				reject(error)
+			}
+			reader.readAsDataURL(file)
+		})
+	}
 
 	const clearFiles = (fileInputRef?: Ref<HTMLInputElement | null>) => {
-		if (storageMode === 'Multipart') {
-			files.value = new FormData()
+		if (isMultipart) {
+			formData.value = new FormData()
 		} else {
-			;(files.value as ClientFile[]).splice(0)
-			jsonFiles.value.splice(0)
+			dataUrlFiles.value.splice(0, dataUrlFiles.value.length)
 		}
-
 		const el = fileInputRef ? unref(fileInputRef) : null
 		if (el) {
 			el.value = ''
 		}
 	}
 
-	const serializeFile = (file: File): Promise<SerializedFile> => {
-		return new Promise((resolve, reject) => {
-			const reader = new FileReader()
-			reader.onload = () => {
-				resolve({
-					name: file.name,
-					size: file.size,
-					type: file.type,
-					lastModified: file.lastModified,
-					content: reader.result,
-				})
-			}
-			reader.onerror = () => reject(reader.error)
-			reader.readAsDataURL(file)
-		})
-	}
-
-	const handleFileInput = async (event: Event) => {
-		const target = event.target as HTMLInputElement
-		if (!target.files) return
-
-		if (deleteOldFiles) {
+	const handleFileInput = async (event: any) => {
+		if (shouldDeleteOld) {
 			clearFiles()
 		}
 
-		if (storageMode === 'Multipart') {
-			const formData = files.value as FormData
-			for (const file of Array.from(target.files)) {
-				formData.append('files', file)
+		if (isMultipart) {
+			for (const file of event.target.files) {
+				formData.value.append(file.name, file)
 			}
-			return
-		}
-
-		const legacyFiles = files.value as ClientFile[]
-		for (const file of Array.from(target.files)) {
-			const serialized = await serializeFile(file)
-			legacyFiles.push(Object.assign(file, { content: serialized.content }) as ClientFile)
-			jsonFiles.value.push(serialized)
+		} else {
+			const promises = []
+			for (const file of event.target.files) {
+				promises.push(serializeFile(file))
+			}
+			await Promise.all(promises)
 		}
 	}
 
-	/** Legacy JSON-only handler. Prefer handleFileInput in DataURL mode. */
-	const handleJsonFileInput = async (event: Event) => {
-		const target = event.target as HTMLInputElement
-		if (!target.files) return
+	const submit = async (endpoint: string, opts?: SubmitOptions): Promise<any> => {
+		const { extraBody, onProgress, signal } = opts || {}
+		const progressCb = onProgress ?? options.onProgress
 
-		if (deleteOldFiles) {
-			jsonFiles.value.splice(0)
+		if (isMultipart) {
+			const body = formData.value
+
+			if (progressCb) {
+				return new Promise((resolve, reject) => {
+					const xhr = new XMLHttpRequest()
+					xhr.upload.onprogress = (e) => {
+						if (e.lengthComputable) {
+							progressCb(Math.round((e.loaded / e.total) * 100))
+						}
+					}
+					xhr.onload = () => {
+						try {
+							resolve(JSON.parse(xhr.responseText))
+						} catch {
+							resolve(xhr.responseText)
+						}
+					}
+					xhr.onerror = () => reject(new Error('Upload failed'))
+					xhr.open('POST', endpoint)
+					if (signal) signal.addEventListener('abort', () => xhr.abort())
+					xhr.send(body)
+				})
+			}
+
+			return $fetch(endpoint, {
+				method: 'POST',
+				body,
+				signal,
+			})
 		}
 
-		for (const file of Array.from(target.files)) {
-			jsonFiles.value.push(await serializeFile(file))
-		}
+		return $fetch(endpoint, {
+			method: 'POST',
+			body: {
+				files: dataUrlFiles.value,
+				...extraBody,
+			},
+			signal,
+		})
 	}
 
 	return {
 		files,
-		jsonFiles,
 		handleFileInput,
-		handleJsonFileInput,
 		clearFiles,
+		submit,
 	}
 }
