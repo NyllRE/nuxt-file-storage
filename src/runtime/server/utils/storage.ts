@@ -1,5 +1,5 @@
 import { writeFile, rm, mkdir, readdir } from 'fs/promises'
-import type { ServerFile } from '../../types'
+import type { ServerFile, File, MultipartFileEntry } from '../../types'
 import type { H3Event, EventHandlerRequest } from 'h3'
 import path from 'path'
 import {
@@ -14,49 +14,25 @@ const getMount = (): string | undefined => {
 	try {
 		return useRuntimeConfig().public.fileStorage.mount
 	} catch {
-		// when running outside of a Nuxt context (tests), fall back to env var
 		return process.env.FILE_STORAGE_MOUNT || process.env.NUXT_FILE_STORAGE_MOUNT
 	}
 }
 
 /**
- * @description Will store the file in the specified directory
- * @param file provide the file object
- * @param fileNameOrIdLength you can pass a string or a number, if you enter a string it will be the file name, if you enter a number it will generate a unique ID
- * @param filelocation provide the folder you wish to locate the file in
- * @returns file name: `${filename}`.`${fileExtension}`
- *
- *
- * [Documentation](https://github.com/NyllRE/nuxt-file-storage#handling-files-in-the-backend)
- *
- *
- * @example
- * ```ts
- * import type { ServerFile } from "nuxt-file-storage";
- *
- * export default defineEventHandler(async (event) => {
- * 	const { file } = await readBody<{ file: ServerFile }>(event);
- * 	await storeFileLocally( file, 8, '/userFiles' );
- * })
- * ```
+ * @description Shared helper to write binary data to the filesystem after validating the path.
  */
-export const storeFileLocally = async (
-	file: ServerFile,
+const writeToFileSystem = async (
+	binaryData: Buffer,
 	fileNameOrIdLength: string | number,
-	filelocation: string = '',
+	filelocation: string,
+	originalFileName: string,
+	originalExt: string,
 ): Promise<string> => {
-	const { binaryString, ext } = parseDataUrl(file.content)
 	const location = getMount()
 	if (!location) throw new Error('fileStorage.mount is not configured')
 
-	//? Extract the file extension from the original filename
-	const nameStr = file.name.toString()
-	// If the provided filename contains a dot, use that extension; otherwise fall back to MIME-derived ext
-	const originalExt = nameStr.includes('.') ? nameStr.split('.').pop() : ext
-	// sanitize extension (keep alphanumerics only)
-	const safeExt = (originalExt || ext).replace(/[^a-zA-Z0-9]/g, '') || ext
+	const safeExt = originalExt.replace(/[^a-zA-Z0-9]/g, '') || originalExt
 
-	// generate or validate filename
 	let filename: string
 	if (typeof fileNameOrIdLength === 'number') {
 		filename = `${generateRandomId(fileNameOrIdLength)}.${safeExt}`
@@ -65,13 +41,10 @@ export const storeFileLocally = async (
 		const extensionFromFileName = fileNameOrIdLength.split('.').pop()
 
 		if (!fileNameOrIdLength.includes('.')) {
-			// Case 1: No extension → append the correct one
 			filename = `${fileNameOrIdLength}.${safeExt}`
 		} else if (extensionFromFileName === safeExt) {
-			// Case 2: Correct extension → use as-is
 			filename = fileNameOrIdLength
 		} else {
-			// Case 3: Wrong extension → warn and replace it
 			console.warn(
 				`[nuxt-file-storage] The provided filename "${fileNameOrIdLength}" does not have the expected extension ".${safeExt}". The correct extension will be appended.`,
 			)
@@ -79,10 +52,7 @@ export const storeFileLocally = async (
 		}
 	}
 
-	// normalize and validate filelocation
 	const normalizedFilelocation = normalizeRelative(filelocation)
-
-	// ensure directory exists and is within mount
 	const dirPath = await resolveAndEnsureInside(location, normalizedFilelocation)
 	try {
 		await mkdir(dirPath, { recursive: true })
@@ -103,10 +73,9 @@ export const storeFileLocally = async (
 		throw err
 	}
 
-	// ensure target file will be inside mount (prevents traversal & symlink escape)
 	const targetPath = await resolveAndEnsureInside(location, normalizedFilelocation, filename)
 
-	await writeFile(targetPath, binaryString as any, {
+	await writeFile(targetPath, binaryData as any, {
 		flag: 'w',
 	})
 
@@ -114,19 +83,75 @@ export const storeFileLocally = async (
 }
 
 /**
- * @description Get file path in the specified directory
- * @param filename provide the file name (return of storeFileLocally)
- * @param filelocation provide the folder you wish to locate the file in
- * @returns file path: `${config.fileStorage.mount}/${filelocation}/${filename}`
+ * @description Store a file from a multipart form upload.
+ * @param file the multipart file entry (from readMultipartFormData)
+ * @param fileNameOrIdLength string = custom name, number = random ID length
+ * @param filelocation the folder to store the file in
+ * @returns the stored file name
  */
+export const storeFile = async (
+	file: MultipartFileEntry,
+	fileNameOrIdLength: string | number,
+	filelocation: string = '',
+): Promise<string> => {
+	const ext = file.filename.includes('.') ? (file.filename.split('.').pop() as string) : ''
+	return writeToFileSystem(
+		file.data,
+		fileNameOrIdLength,
+		filelocation,
+		file.filename,
+		ext,
+	)
+}
+
+/**
+ * @description Store a file from a JSON body (DataURL mode).
+ * @param file the file object (from JSON body)
+ * @param fileNameOrIdLength string = custom name, number = random ID length
+ * @param filelocation the folder to store the file in
+ * @returns the stored file name
+ */
+export const storeFileJson = async (
+	file: File,
+	fileNameOrIdLength: string | number,
+	filelocation: string = '',
+): Promise<string> => {
+	const { binaryString, ext } = parseDataUrl(file.content)
+	const originalExt = file.name.includes('.') ? (file.name.split('.').pop() as string) : ext
+	return writeToFileSystem(
+		binaryString,
+		fileNameOrIdLength,
+		filelocation,
+		file.name,
+		originalExt || ext,
+	)
+}
+
+/**
+ * @description Store the file in the specified directory
+ * @deprecated Use `storeFileJson` instead. Will be removed in v0.5.0.
+ */
+export const storeFileLocally = async (
+	file: ServerFile,
+	fileNameOrIdLength: string | number,
+	filelocation: string = '',
+): Promise<string> => {
+	const converted: File = {
+		name: file.name,
+		size: Number(file.size),
+		type: file.type,
+		lastModified: Number(file.lastModified),
+		content: file.content,
+	}
+	return storeFileJson(converted, fileNameOrIdLength, filelocation)
+}
+
 export const getFileLocally = (filename: string, filelocation: string = ''): string => {
 	const location = getMount()
 	if (!location) throw new Error('fileStorage.mount is not configured')
 	ensureSafeBasename(filename)
 	const normalizedFilelocation = normalizeRelative(filelocation)
-	// resolve synchronously enough for simple paths: use path.resolve and ensure inside mount
 	const resolved = path.resolve(location, normalizedFilelocation, filename)
-	// simple check: ensure resolved path starts with mount resolved
 	const mountResolved = path.resolve(location)
 	const relative = path.relative(mountResolved, resolved)
 	if (relative === '' || (!relative.startsWith('..' + path.sep) && relative !== '..')) {
@@ -138,11 +163,6 @@ export const getFileLocally = (filename: string, filelocation: string = ''): str
 	})
 }
 
-/**
- * @description Get all files in the specified directory
- * @param filelocation provide the folder you wish to locate the file in
- * @returns all files in filelocation: `${config.fileStorage.mount}/${filelocation}`
- */
 export const getFilesLocally = async (filelocation: string = ''): Promise<string[]> => {
 	const location = getMount()
 	if (!location) return []
@@ -151,14 +171,6 @@ export const getFilesLocally = async (filelocation: string = ''): Promise<string
 	return await readdir(dirPath).catch(() => [])
 }
 
-/**
- * @param filename the name of the file you want to delete
- * @param filelocation the folder where the file is located, if it is in the root folder you can leave it empty, if it is in a subfolder you can pass the name of the subfolder with a preceding slash: `/subfolder`
- * @example
- * ```ts
- * await deleteFile('/userFiles', 'requiredFile.txt')
- * ```
- */
 export const deleteFile = async (filename: string, filelocation: string = '') => {
 	const location = getMount()
 	if (!location) throw new Error('fileStorage.mount is not configured')
@@ -168,11 +180,6 @@ export const deleteFile = async (filename: string, filelocation: string = '') =>
 	await rm(targetPath)
 }
 
-/**
- * @description generates a random ID with the specified length
- * @param length the length of the random ID
- * @returns a random ID with the specified length
- */
 const generateRandomId = (length: number) => {
 	const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
 	let randomId = ''
@@ -182,16 +189,6 @@ const generateRandomId = (length: number) => {
 	return randomId
 }
 
-/**
- * @description Parses a data URL and returns an object with the binary data and the file extension.
- * @param {string} file - The data URL
- * @returns {{binaryString: Buffer, ext: string}} An object with the binary data - file extension
- *
- * @example
- * ```ts
- *   const { binaryString, ext } = parseDataUrl(file.content)
- * ```
- */
 export const parseDataUrl = (file: string): { binaryString: Buffer; ext: string } => {
 	const arr: string[] = file.split(',')
 	const mimeMatch = arr[0].match(/:(.*?);/)
@@ -207,19 +204,11 @@ export const parseDataUrl = (file: string): { binaryString: Buffer; ext: string 
 	return { binaryString, ext }
 }
 
-/**
- * Retrieve a file as a readable stream from local storage
- * @param event H3 event to set response headers
- * @param filename name of the file to retrieve
- * @param filelocation folder where the file is located
- * @returns Readable stream of the file
- */
 export const retrieveFileLocally = async (
 	event: H3Event<EventHandlerRequest>,
 	filename: string,
 	filelocation: string = '',
 ): Promise<NodeJS.ReadableStream> => {
-	// Ensure the file exists and is a regular file
 	const filePath = getFileLocally(filename, filelocation)
 	let stats
 	try {
@@ -231,7 +220,6 @@ export const retrieveFileLocally = async (
 		throw createError({ statusCode: 404, statusMessage: 'Not Found' })
 	}
 
-	// Basic mime mapping for common types, fallback to octet-stream
 	const ext = path.extname(filePath).slice(1).toLowerCase()
 	const mimeMap: Record<string, string> = {
 		png: 'image/png',
@@ -246,10 +234,8 @@ export const retrieveFileLocally = async (
 	}
 	const contentType = mimeMap[ext] || 'application/octet-stream'
 
-	// Set headers and return a readable stream (Nitro/h3 will handle streaming)
 	event.node.res.setHeader('Content-Type', contentType)
 	event.node.res.setHeader('Content-Length', String(stats.size))
-	// suggest inline disposition so browsers can display known types
 	event.node.res.setHeader('Content-Disposition', `inline; filename="${path.basename(filePath)}"`)
 
 	return createReadStream(filePath)

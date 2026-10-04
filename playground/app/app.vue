@@ -22,12 +22,12 @@
 						@dragover.prevent
 						@dragenter.prevent="
 							(e: any) => {
-								e.target.classList.add('drag-active');
+								e.target.classList.add('drag-active')
 							}
 						"
 						@dragleave.prevent="
 							(e: any) => {
-								e.target.classList.remove('drag-active');
+								e.target.classList.remove('drag-active')
 							}
 						"
 						@drop.prevent="handleDrop"
@@ -48,15 +48,11 @@
 					<p>{{ approveUpload }}</p>
 				</div>
 				<div class="images">
-					<template v-for="file in files" :key="file.name">
-						<img
-							v-if="file.type.startsWith('image/')"
-							:src="file.content as string"
-							:alt="file.name"
-						/>
+					<template v-for="preview in previews" :key="preview.url">
+						<img v-if="preview.type.startsWith('image/')" :src="preview.url" :alt="preview.name" />
 						<div v-else class="non-image-file">
 							<span class="file-icon">📄</span>
-							<span class="file-name">{{ file.name }}</span>
+							<span class="file-name">{{ preview.name }}</span>
 						</div>
 					</template>
 				</div>
@@ -66,36 +62,58 @@
 </template>
 
 <script setup lang="ts">
-const { handleFileInput, files, clearFiles } = useFileStorage({ clearOldFiles: true });
+const { handleFileInput, files, clearFiles } = useFileStorage({
+	deleteOldFiles: true,
+	storageMode: 'Multipart',
+})
 
-const handleDrop = (e: any) => {
-	alert("drag and drop functionality does not work currently, pr's are welcome :)");
-};
+const fileInputRef = ref<HTMLInputElement | null>(null)
+const previews = ref<Array<{ name: string; type: string; url: string }>>([])
+const fileLinks = ref<string[]>([])
+const approveUpload = ref('')
 
-const fileInputRef = ref<HTMLInputElement | null>(null);
+const handleDrop = () => {
+	alert("drag and drop functionality does not work currently, pr's are welcome :)")
+}
 
 const clearFileHandler = () => {
-	clearFiles(fileInputRef);
-};
+	clearFiles(fileInputRef)
+	previews.value = []
+}
 
-const fileLinks = ref<string[]>([]);
-const approveUpload = ref("");
+watch(files, (newFiles) => {
+	if (!(newFiles instanceof FormData)) return
+
+	for (const preview of previews.value) {
+		URL.revokeObjectURL(preview.url)
+	}
+	previews.value = []
+
+	for (const value of newFiles.values()) {
+		if (value instanceof File) {
+			previews.value.push({
+				name: value.name,
+				type: value.type,
+				url: URL.createObjectURL(value),
+			})
+		}
+	}
+})
 
 const submit = async () => {
-	const response = await $fetch("/api/files", {
-		method: "POST",
-		body: {
-			files: files.value,
-		},
-	});
-	if (!response) return;
-	approveUpload.value = "Uploaded files successfully!";
-	fileLinks.value = response;
-};
+	const response = await $fetch('/api/files', {
+		method: 'POST',
+		body: files.value as FormData,
+	})
+
+	if (!response) return
+	approveUpload.value = 'Uploaded files successfully!'
+	fileLinks.value = response
+}
 </script>
 
 <style>
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
 
 pre {
 	width: 80%;
@@ -124,7 +142,6 @@ img.logo {
 }
 
 .images {
-	/* margin-top: 2em; */
 	padding: 1em;
 	display: flex;
 	flex-wrap: wrap;
@@ -138,18 +155,15 @@ img.logo {
 	scrollbar-width: thin;
 }
 
-/* Track */
 ::-webkit-scrollbar-track {
 	background-color: #87ff5b;
 }
 
-/* Thumb */
 ::-webkit-scrollbar-thumb {
 	background-color: #64ffc3;
 	border-radius: 10px;
 }
 
-/* Thumb hover */
 ::-webkit-scrollbar-thumb:hover {
 	background-color: #ccc;
 }
@@ -170,9 +184,11 @@ img.logo {
 	width: 100%;
 	max-width: 30em;
 }
+
 .non-image-file .file-icon {
 	font-size: 1.5em;
 }
+
 .non-image-file .file-name {
 	font-size: 0.95em;
 	color: #ccc;
@@ -212,9 +228,7 @@ header {
 	border: 2px dashed #555;
 	color: #444;
 	cursor: pointer;
-	transition:
-		background 0.2s ease-in-out,
-		border 0.2s ease-in-out;
+	transition: background 0.2s ease-in-out, border 0.2s ease-in-out;
 }
 
 .drop-container:hover {
@@ -234,7 +248,7 @@ header {
 	transition: color 0.2s ease-in-out;
 }
 
-input[type="file"]::file-selector-button,
+input[type='file']::file-selector-button,
 button {
 	margin-right: 20px;
 	border: none;
@@ -246,7 +260,7 @@ button {
 	transition: background 0.2s ease-in-out;
 }
 
-input[type="file"]::file-selector-button:hover,
+input[type='file']::file-selector-button:hover,
 button:hover {
 	background: rgb(75, 197, 75);
 }
@@ -261,7 +275,7 @@ button:hover {
 }
 
 .main {
-	font-family: "DM Sans", Courier, monospace;
+	font-family: 'DM Sans', Courier, monospace;
 	width: 100%;
 	height: 100dvh;
 	display: flex;
@@ -279,15 +293,5 @@ button:hover {
 	background: linear-gradient(135deg, rgb(70, 255, 178), #00dc82, rgb(37, 153, 8));
 	background-clip: text;
 	-webkit-text-fill-color: transparent;
-}
-
-@keyframes animate-in {
-	from {
-		transform: translateY(5%);
-	}
-
-	to {
-		transform: translateY(-5%);
-	}
 }
 </style>

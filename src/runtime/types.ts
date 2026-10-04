@@ -1,3 +1,19 @@
+export interface File {
+	name: string
+	size: number
+	type: string
+	lastModified: number
+	content: string
+}
+
+export interface MultipartFileEntry {
+	filename: string
+	data: Buffer
+	type: string
+	fieldName?: string
+}
+
+/** @deprecated Use `File` instead. Will be removed in v0.5.0. */
 export interface ServerFile {
 	name: string
 	content: string
@@ -17,10 +33,6 @@ export interface ModuleOptions {
 	version: string
 }
 
-/**
- * @description Augment the '#imports' module to include useRuntimeConfig
- * this is only needed because this package is consumed as a module
- */
 declare module '#imports' {
   export function useRuntimeConfig(): any
 }
